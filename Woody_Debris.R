@@ -26,14 +26,15 @@ EAB_LWD$Gap_number<-as.factor(EAB_LWD$Gap_number)
 
 #Plots for percent ash
 #Create line plots
-ggplot(EAB_LWD, aes(x=Watershed, y=Ash_Ratio, colour=Gap_location)) + 
+ggplot(EAB_LWD, aes(x=Gap_location, y=Ash_Ratio, colour=Watershed)) + 
   geom_boxplot() +
   ylab("Percent Ash") +
-  scale_colour_hue(name="Gap Location")+
+  xlab("Gap Location")+
   theme_classic()+
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.title=element_text(size=20),legend.text = element_text(size=16))
+        legend.title=element_text(size=20),legend.text = element_text(size=16))+
+  scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
 
 #Create heat maps
 #using geom_tile
@@ -61,14 +62,15 @@ shapiro.test(EAB_LWD$Ash_Ratio)
 anova(lmer(SR_Ash_Ratio ~ Gap_location + (1|Gap_number/Stream_name), EAB_LWD))
 
 #Now look at decay levels
-ggplot(EAB_LWD, aes(x=Watershed, y=Average_Decay_Level, colour=Gap_location)) + 
+ggplot(EAB_LWD, aes(x=Gap_location, y=Average_Decay_Level, colour=Watershed)) + 
   geom_boxplot() +
   ylab("Decay Level") +
-  scale_colour_hue(name="Gap Location")+
+  xlab("Gap Location")+
   theme_classic()+
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.title=element_text(size=20),legend.text = element_text(size=16))
+        legend.title=element_text(size=20),legend.text = element_text(size=16))+
+  scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
 
 #Stats for decay level
 #test for normality of distribution
