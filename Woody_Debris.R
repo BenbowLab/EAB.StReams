@@ -2,7 +2,10 @@
 
 #Upload libraries
 library(ggplot2)
+library(nlme)
+library(nlme)
 library(lme4)
+library(lmerTest)
 #Upload data
 EAB_LWD<-read.csv("~/Documents/MSU/Research/Surveying/CWD_Survey.csv", sep=",", header = T)
 #Create new variable for location
@@ -18,6 +21,8 @@ EAB_LWD$Ash_Ratio<-as.numeric(EAB_LWD$Number_Ash_LWD/EAB_LWD$Total_LWD)
 #order for upstream, gap, downstream
 str(EAB_LWD)
 EAB_LWD$Gap_location<- factor(EAB_LWD$Gap_location, levels=c("Upstream", "Gap", "Downstream"))
+#make gap number a factor
+EAB_LWD$Gap_number<-as.factor(EAB_LWD$Gap_number)
 
 #Plots for percent ash
 #Create line plots
@@ -53,36 +58,7 @@ Woody Debris")+
 #test for normality of distribution
 shapiro.test(EAB_LWD$Ash_Ratio)
 #We reject the null hypothesis and determine not normally distributed
-#test different values for watersheds
-kruskal.test(Ash_Ratio ~ Watershed, EAB_LWD)
-#We reject the null hypothesis and determine each watershed has different ash ratios. 
-#Therefore use each watershed for further tests
-#subset dataset by each watershed
-EAB_LWD_KZ<-subset(EAB_LWD, Watershed=="Kalamazoo")
-EAB_LWD_GR<-subset(EAB_LWD, Watershed=="Grand")
-EAB_LWD_CL<-subset(EAB_LWD, Watershed=="Clinton")
-#Determine if differences for each stream in each watershed
-shapiro.test(EAB_LWD_KZ$Ash_Ratio)
-#Kalamazoo not normal
-shapiro.test(EAB_LWD_GR$Ash_Ratio)
-#Grand not normal
-shapiro.test(EAB_LWD_CL$Ash_Ratio)
-#Clinton normal
-wilcox.test(Ash_Ratio ~ Stream_name, EAB_LWD_KZ)
-#We fail to reject the null hypothesis, do not have different ratios
-wilcox.test(Ash_Ratio ~ Stream_name, EAB_LWD_GR)
-#We fail to reject the null hypothesis, do not have different ratios
-#Only ony stream in Clinton watershed
-#We do not need to run different tests for each stream
-EAB_LWD_KZ$Block<-factor(paste(EAB_LWD_KZ$Stream_name,EAB_LWD_KZ$Gap_number))
-friedman.test(EAB_LWD_KZ$Ash_Ratio, EAB_LWD_KZ$Gap_location, EAB_LWD_KZ$Block)
-#Not significant
-EAB_LWD_GR$Block<-factor(paste(EAB_LWD_GR$Stream_name,EAB_LWD_GR$Gap_number))
-friedman.test(EAB_LWD_GR$Ash_Ratio, EAB_LWD_GR$Gap_location, EAB_LWD_GR$Block)
-#Not significant
-EAB_LWD_CL$Block<-factor(paste(EAB_LWD_CL$Stream_name,EAB_LWD_CL$Gap_number))
-anova(lm(Ash_Ratio ~ Gap_location + Block, EAB_LWD_CL))
-#Not significant
+anova(lmer(SR_Ash_Ratio ~ Gap_location + (1|Gap_number/Stream_name), EAB_LWD))
 
 #Now look at decay levels
 ggplot(EAB_LWD, aes(x=Watershed, y=Average_Decay_Level, colour=Gap_location)) + 
@@ -98,26 +74,4 @@ ggplot(EAB_LWD, aes(x=Watershed, y=Average_Decay_Level, colour=Gap_location)) +
 #test for normality of distribution
 shapiro.test(EAB_LWD$Average_Decay_Level)
 #Not normal
-#test different values for watersheds
-kruskal.test(Average_Decay_Level ~ Watershed, EAB_LWD)
-#not identical, so split up by watershed
-#Determine if differences for each stream in each watershed
-shapiro.test(EAB_LWD_KZ$Average_Decay_Level)
-#Kalamazoo normal
-shapiro.test(EAB_LWD_GR$Average_Decay_Level)
-#Grand not normal
-shapiro.test(EAB_LWD_CL$Average_Decay_Level)
-#Clinton normal
-t.test(EAB_LWD_KZ$Average_Decay_Level ~ EAB_LWD_KZ$Stream_name)
-#no difference in streams
-wilcox.test(Average_Decay_Level ~ Stream_name, EAB_LWD_GR)
-#no difference in streams
-#clinton only one stream
-#Continue analyses within each watershed
-friedman.test(EAB_LWD_KZ$Average_Decay_Level, EAB_LWD_KZ$Gap_location, EAB_LWD_KZ$Block)
-#Not significant
-friedman.test(EAB_LWD_GR$Average_Decay_Level, EAB_LWD_GR$Gap_location, EAB_LWD_GR$Block)
-#Not significant
-friedman.test(EAB_LWD_CL$Average_Decay_Level, EAB_LWD_CL$Gap_location, EAB_LWD_CL$Block)
-#Not significant
-
+anova(lmer(Average_Decay_Level ~ Gap_location + (1|Gap_number/Stream_name), EAB_LWD))
