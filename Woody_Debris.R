@@ -127,4 +127,3 @@ ggplot(EAB_LWD, aes(x=Gap_location, y=AWD_Density, colour=Watershed)) +
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.title=element_text(size=20),legend.text = element_text(size=16))+
   scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
-
