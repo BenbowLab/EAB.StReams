@@ -43,16 +43,18 @@ summarySE <- function(data=NULL, measurevar, groupvars=NULL, na.rm=FALSE, conf.i
 EAB_Rip_WD<-read.csv("~/Documents/MSU/Research/Surveying/Riparian/Riparian_Woody_Debris.csv", sep = ",", header = T )
 #make percent ash add to 1
 EAB_Rip_WD$Percent_ash<-EAB_Rip_WD$Percent_ash/100
+#Make watershed order east to west
+EAB_Rip_WD$Stream<- factor(EAB_Rip_WD$Stream, levels=c("Kalamazoo", "Grand", "Clinton"))
 #visualize differences between forest and gap overall
-ggplot(EAB_Rip_WD, aes(x=Stream, y=Percent_ash, fill=Location)) + 
+ggplot(EAB_Rip_WD, aes(x=Location, y=Percent_ash, fill=Stream)) + 
   geom_boxplot() +
   ylab("Percent Ash") +
-  xlab("Watershed")+
-  scale_colour_hue(name="Gap Location")+
+  xlab("Gap Location")+
   theme_classic()+
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.title=element_text(size=20),legend.text = element_text(size=16))
+        legend.title=element_text(size=20),legend.text = element_text(size=16))+
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 
 #check for normality
 shapiro.test(EAB_Rip_WD$Percent_ash)

@@ -64,7 +64,7 @@ EAB_LL_CM$Alpha<-diversity (EAB_LL_com, index = "shannon")
 EAB_LL_CM$Watershed<-factor(EAB_LL_CM$Watershed, levels=c("Kalamazoo", "Grand", "Clinton"))
 EAB_LL_CM$Gap_location<-factor(EAB_LL_CM$Gap_location, levels=c("Upstream", "Gap", "Downstream"))
 
-ggplot(EAB_LL_CM, aes(x=Gap_location, y=Alpha, colour=Watershed)) + 
+ggplot(EAB_LL_CM, aes(x=Gap_location, y=Alpha, fill=Watershed)) + 
   geom_boxplot() +
   ylab("Shannon Diversity") +
   xlab("Gap Location")+
@@ -72,6 +72,6 @@ ggplot(EAB_LL_CM, aes(x=Gap_location, y=Alpha, colour=Watershed)) +
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.title=element_text(size=20),legend.text = element_text(size=16))+
-  scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 anova(lmer(Alpha ~ Gap_location + (1|Gap_number/Stream_name), EAB_LL_CM))
 

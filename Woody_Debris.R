@@ -25,10 +25,12 @@ str(EAB_LWD)
 EAB_LWD$Gap_location<- factor(EAB_LWD$Gap_location, levels=c("Upstream", "Gap", "Downstream"))
 #make gap number a factor
 EAB_LWD$Gap_number<-as.factor(EAB_LWD$Gap_number)
+#order for watershed
+EAB_LWD$Watershed<-factor(EAB_LWD$Watershed, levels=c("Kalamazoo", "Grand", "Clinton"))
 
 #Plots for percent ash
-#Create line plots
-ggplot(EAB_LWD, aes(x=Gap_location, y=Ash_Ratio, colour=Watershed)) + 
+#Create box plots
+ggplot(EAB_LWD, aes(x=Gap_location, y=Ash_Ratio, fill=Watershed)) + 
   geom_boxplot() +
   ylab("Percent Ash") +
   xlab("Gap Location")+
@@ -36,16 +38,8 @@ ggplot(EAB_LWD, aes(x=Gap_location, y=Ash_Ratio, colour=Watershed)) +
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.title=element_text(size=20),legend.text = element_text(size=16))+
-  scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 
-#Create line plots
-ggplot(EAB_LWD, aes(x=Gap_location, y=Ash_Ratio)) + 
-  geom_boxplot() +
-  ylab("Percent Ash") +
-  xlab("Gap Location")+
-  theme_classic()+
-  theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14))
 
 #Create heat maps
 #using geom_tile
@@ -99,7 +93,7 @@ alias(ART)
 anova(lmer(arcsinAsh_Ratio ~ Gap_location + (1|Gap_number/Stream_name), EAB_LWD))
 
 #Now look at decay levels
-ggplot(EAB_LWD, aes(x=Gap_location, y=Average_Decay_Level, colour=Watershed)) + 
+ggplot(EAB_LWD, aes(x=Gap_location, y=Average_Decay_Level, fill=Watershed)) + 
   geom_boxplot() +
   ylab("Decay Level") +
   xlab("Gap Location")+
@@ -107,7 +101,7 @@ ggplot(EAB_LWD, aes(x=Gap_location, y=Average_Decay_Level, colour=Watershed)) +
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.title=element_text(size=20),legend.text = element_text(size=16))+
-  scale_color_manual(values=wes_palette(n=3, name="GrandBudapest"))
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
 
 #Stats for decay level
 #test for normality of distribution
