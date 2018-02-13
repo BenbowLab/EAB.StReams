@@ -7,6 +7,7 @@ library(reshape)
 library(vegan)
 library("RColorBrewer")
 library(wesanderson)
+library(lme4)
 #Functions
 ## Summarizes data.
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence 

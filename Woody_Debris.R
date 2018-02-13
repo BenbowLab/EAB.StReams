@@ -7,13 +7,79 @@ library(nlme)
 library(lme4)
 library(lmerTest)
 #Upload data
-EAB_LWD<-read.csv("~/Documents/MSU/Research/Surveying/CWD_Survey.csv", sep=",", header = T)
+EAB_ILWD<-read.csv("~/Documents/MSU/Research/Surveying/Stream_Woody_Debris.csv", sep=",", header = T)
 #Create new variable for location
-EAB_LWD$LocationID<-factor(paste(EAB_LWD$Gap_number, EAB_LWD$Gap_location))
-#specify order
-EAB_LWD$LocationID <- factor(EAB_LWD$LocationID, c("1 Upstream", "1 Gap", "1 Downstream", "2 Upstream", "2 Gap", "2 Downstream"))
+EAB_ILWD$LocationID<-factor(paste(EAB_ILWD$Stream, EAB_ILWD$Gap, EAB_ILWD$Basket))
+#Create new variable for Area
+EAB_ILWD$Area<-as.numeric(2*pi*((EAB_ILWD$Diameter)/2)*EAB_ILWD$In_Stream_Length+2*pi*(EAB_ILWD$Diameter/2)^2)
+#Cast data into new data sheet with counts for each location
+EAB_LWD<-aggregate(EAB_ILWD$Area, by=list(EAB_ILWD$LocationID,EAB_ILWD$Species,EAB_ILWD$Basket,EAB_ILWD$Stream), FUN=sum)
+#Create Watershed variable
+EAB_LWD$Watershed<-as.character(EAB_LWD$Group.4)
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Augusta Creek"]<-"Kalamazoo"
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Seven Mile Creek"]<-"Kalamazoo"
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Frayer Creek"]<-"Grand"
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Sessions Creek"]<-"Grand"
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Spring Creek"]<-"Clinton"
+EAB_LWD$Watershed[EAB_LWD$Watershed == "Stoney Creek"]<-"Clinton"
+#Create transect length variable
+EAB_LWD$Length<-as.character(EAB_LWD$Group.1)
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 1 Upstream"]<-"32"
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 1 Gap"]<-"71"
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 1 Downstream"]<-"30"
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 2 Upstream"]<-"38"
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 2 Gap"]<-"114"
+EAB_LWD$Length[EAB_LWD$Length == "Augusta Creek 2 Downstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 1 Upstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 1 Gap"]<-"33"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 1 Downstream"]<-"21"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 2 Upstream"]<-"29"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 2 Gap"]<-"31"
+EAB_LWD$Length[EAB_LWD$Length == "Seven Mile Creek 2 Downstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 1 Upstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 1 Gap"]<-"104"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 1 Downstream"]<-"87"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 2 Upstream"]<-"36"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 2 Gap"]<-"29"
+EAB_LWD$Length[EAB_LWD$Length == "Frayer Creek 2 Downstream"]<-"45"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 1 Upstream"]<-"28"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 1 Gap"]<-"26"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 1 Downstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 2 Upstream"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 2 Gap"]<-"20"
+EAB_LWD$Length[EAB_LWD$Length == "Sessions Creek 2 Downstream"]<-"40"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 1 Upstream"]<-"54"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 1 Gap"]<-"202"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 1 Downstream"]<-"73"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 2 Upstream"]<-"36"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 2 Gap"]<-"34"
+EAB_LWD$Length[EAB_LWD$Length == "Spring Creek 2 Downstream"]<-"58"
+#Delete stoney creek
+EAB_LWDS<-EAB_LWD[-c(52,53,54,55,56),]
+#Create new dataset for total woody debris
+EAB_TWD<-aggregate(EAB_LWDS$x, by=list(EAB_LWDS$Group.4,EAB_LWDS$Group.1,EAB_LWDS$Group.3,EAB_LWDS$Watershed, EAB_LWDS$Length), FUN=sum)
+EAB_TWD$TWDAREA<-as.numeric(EAB_TWD$Group.5)
 #Create new variable for total woody debris density
-EAB_LWD$TWD_Density<-as.numeric(EAB_LWD$Total_LWD/EAB_LWD$Transect_Length_m)
+EAB_TWD$TWD_Density<-as.numeric(EAB_TWD$x/EAB_TWD$TWDAREA)
+#order for watershed
+EAB_TWD$Watershed<-factor(EAB_TWD$Group.4, levels=c("Kalamazoo", "Grand", "Clinton"))
+#order for stream location
+EAB_TWD$GapLocation<-factor(EAB_TWD$Group.3, levels=c("Upstream", "Gap", "Downstream"))
+#Plot for total woody debris density
+ggplot(EAB_TWD, aes(x=GapLocation, y=TWD_Density, fill=Watershed)) + 
+  geom_boxplot() +
+  ylab("TWD area per m in stream") +
+  xlab("Gap Location")+
+  theme_classic()+
+  theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=20),legend.text = element_text(size=16))+
+  scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
+#Some basic stats
+anova(lmer(TWD_Density ~ GapLocation + (1|Watershed), EAB_TWD))
+
+
+################################
 #Create new variable for ash woody debris density
 EAB_LWD$AWD_Density<-as.numeric(EAB_LWD$Number_Ash_LWD/EAB_LWD$Transect_Length_m)
 #Create new variable for ratio of ash to total woody debris
