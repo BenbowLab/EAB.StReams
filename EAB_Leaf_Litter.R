@@ -62,17 +62,22 @@ EAB_LL_env<-EAB_LL_CM[,1:6]
 adonis(EAB_LL_com ~ Gap_location, data=EAB_LL_env, method="bray", permutations=999)
 #not significant
 EAB_LL_CM$Alpha<-diversity (EAB_LL_com, index = "shannon")
+EAB_LL_CM$Rich<-specnumber(EAB_LL_com)
 EAB_LL_CM$Watershed<-factor(EAB_LL_CM$Watershed, levels=c("Kalamazoo", "Grand", "Clinton"))
 EAB_LL_CM$Gap_location<-factor(EAB_LL_CM$Gap_location, levels=c("Upstream", "Gap", "Downstream"))
 
-ggplot(EAB_LL_CM, aes(x=Gap_location, y=Alpha, fill=Watershed)) + 
+ggplot(EAB_LL_CM, aes(x=Gap_location, y=Rich, fill=Watershed)) + 
   geom_boxplot() +
-  ylab("Shannon Diversity") +
+  ylab("Leaf litter richness") +
   xlab("Gap Location")+
   theme_classic()+
   theme(axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.title=element_text(size=20),legend.text = element_text(size=16))+
   scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))
-anova(lmer(Alpha ~ Gap_location + (1|Gap_number/Stream_name), EAB_LL_CM))
-
+alpha_LL<-lm(Alpha ~ Gap_location*Watershed, EAB_LL_CM)
+summary(alpha_LL)
+#intercept significant
+rich_LL<-glm(Rich ~ Gap_location*Watershed, family=poisson, EAB_LL_CM)
+summary(rich_LL)
+#intercept significant

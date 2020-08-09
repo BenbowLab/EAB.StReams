@@ -7,6 +7,7 @@
 #load packages
 library(vegan)
 library(reshape)
+library(devtools)
 
 #Functions
 ## Summarizes data.
@@ -84,3 +85,15 @@ str(EAB_Inverts_Env)
 #Permanova for Stream, Date, Basket
 adonis(EAB_Inverts_Community ~ Date*Basket*Watershed, data=EAB_Inverts_Env, method="bray", permutations=999)
 #Date and watershed significant
+
+#power analysis
+# Create species-by-site distance matrix
+D <- vegdist(EAB_Inverts_Community+1)
+
+# Run optimized function to generate multivariate SE for each group
+multSE <- source_url("https://raw.githubusercontent.com/jslefche/multSE/master/R/multSE.R")[[1]]
+output <- multSE(D, group = factor(EAB_Inverts_Env$Basket))
+minsamp <- source_url("https://raw.githubusercontent.com/jslefche/multSE/master/R/minsamp.R")[[1]]
+
+# Calculate minimum sample size for each group
+minimum.sample.size <- minsamp(output, output$group)
