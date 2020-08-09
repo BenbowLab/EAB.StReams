@@ -1,0 +1,543 @@
+#EAB Survey 16S 2016-2017											
+											
+################################											
+# 1. prep metadata											
+											
+#Sample List & Mapping Files											
+											
+EAB_Survey_Map.txt											
+											
+#SampleID	BarcodeSequence	LinkerPrimerSequence	Month	Day	YYYY	Date	Time	Gap	Location	Source	Stream	Watershed	Description
+EAB_ALL_2016_3	ACGTGCGCTCGACGAG	N	8	29	2016	8.29.2016	Early	N	Upstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.3
+EAB_ALL_2016_4	TAGCAGCTACTATCTG	N	8	29	2016	8.29.2016	Early	Y	Gap	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.4
+EAB_ALL_2016_5	CTCGACTTATATACAC	N	8	29	2016	8.29.2016	Early	N	Downstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.5
+EAB_ALL_2016_8	CTCGACTTTAGTGTAG	N	10	22	2016	10.22.2016	Mid	N	Upstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.8
+EAB_ALL_2016_9	GTAACGAGAGAGTCAC	N	10	22	2016	10.22.2016	Mid	Y	Gap	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.9
+EAB_ALL_2016_10	ATAGTACCACGTCTCG	N	10	22	2016	10.22.2016	Mid	N	Downstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2016.10
+EAB_ALL_2016_11	ATAGTACCGTCAGATA	N	9	18	2016	9.18.2016	Early	N	Upstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.11
+EAB_ALL_2016_12	AACGCTGAATATACAC	N	9	18	2016	9.18.2016	Early	Y	Gap	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.12
+EAB_ALL_2016_13	GATCTACGAGAGTCAC	N	9	18	2016	9.18.2016	Early	N	Downstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.13
+EAB_ALL_2016_16	ATAGTACCCTGCGTGT	N	12	4	2016	12.4.2016	Mid	N	Upstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.16
+EAB_ALL_2016_17	ATAGTACCGATCGTGT	N	12	4	2016	12.4.2016	Mid	Y	Gap	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.17
+EAB_ALL_2016_18	GTAACGAGTAGCGAGT	N	12	4	2016	12.4.2016	Mid	N	Downstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2016.18
+EAB_ALL_2016_21	GCGTATACACGTCTCG	N	9	19	2016	9.19.2016	Early	N	Upstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.21
+EAB_ALL_2016_22	TGCTCGTATACGAGAC	N	9	19	2016	9.19.2016	Early	Y	Gap	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.22
+EAB_ALL_2016_23	GCGTATACTCATCGAG	N	9	19	2016	9.19.2016	Early	N	Downstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.23
+EAB_ALL_2016_26	ATAGTACCTGCGTACG	N	8	30	2016	8.30.2016	Early	N	Upstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.26
+EAB_ALL_2016_27	TAGCAGCTGCTCTAGT	N	8	30	2016	8.30.2016	Early	Y	Gap	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.27
+EAB_ALL_2016_28	TCTCTATGTAGTGTAG	N	8	30	2016	8.30.2016	Early	N	Downstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.28
+EAB_ALL_2016_31	TCTCTATGCTAGAGCT	N	11	20	2016	11.20.2016	Mid	N	Upstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.31
+EAB_ALL_2016_32	CTCGACTTCGTCGCTA	N	11	20	2016	11.20.2016	Mid	Y	Gap	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.32
+EAB_ALL_2016_33	ACGTGCGCGCTCTAGT	N	11	20	2016	11.20.2016	Mid	N	Downstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2016.33
+EAB_ALL_2016_36	GATCTACGTGCGTACG	N	9	4	2016	9.4.2016	Early	N	Upstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.36
+EAB_ALL_2016_38	CGAAGTATGCTCTAGT	N	9	4	2016	9.4.2016	Early	Y	Gap	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.38
+EAB_ALL_2016_39	GTAACGAGATATACAC	N	9	4	2016	9.4.2016	Early	N	Downstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.39
+EAB_ALL_2016_40	GCGTATACGACACTGA	N	10	23	2016	10.23.2016	Mid	N	Upstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.40
+EAB_ALL_2016_42	TCTCTATGATATACAC	N	10	23	2016	10.23.2016	Mid	Y	Gap	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.42
+EAB_ALL_2016_41	GATCTACGGCTCTAGT	N	10	23	2016	10.23.2016	Mid	N	Downstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2016.43
+EAB_ALL_2016_44	CGAAGTATGACACTGA	N	12	19	2016	12.19.2016	Mid	N	Upstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.44
+EAB_ALL_2016_45	TCTCTATGTGCGTACG	N	12	19	2016	12.19.2016	Mid	Y	Gap	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.45
+EAB_ALL_2016_46	GATCTACGGACACTGA	N	12	19	2016	12.19.2016	Mid	N	Downstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2016.46
+EAB_ALL_2016_49	GTAACGAGCGTCGCTA	N	9	5	2016	9.5.2016	Early	N	Upstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.49
+EAB_ALL_2016_50	GATCTACGCGTCGCTA	N	9	5	2016	9.5.2016	Early	Y	Gap	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.50
+EAB_ALL_2016_51	GCGTATACACGACGTG	N	9	5	2016	9.5.2016	Early	N	Downstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.51
+EAB_ALL_2016_54	ATAGTACCACGACGTG	N	11	12	2016	11.12.2016	Mid	N	Upstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.54
+EAB_ALL_2016_55	GATCTACGTAGTGTAG	N	11	12	2016	11.12.2016	Mid	Y	Gap	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.55
+EAB_ALL_2016_56	CGAAGTATACGACGTG	N	11	12	2016	11.12.2016	Mid	N	Downstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2016.56
+EAB_ALL_2017_3	GTAACGAGATCGTACG	N	1	28	2017	1.28.2017	Late	N	Upstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2017.3
+EAB_ALL_2017_4	TGCTCGTACGTTACTA	N	1	28	2017	1.28.2017	Late	Y	Gap	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2017.4
+EAB_ALL_2017_5	TCTCTATGCTACTATA	N	1	28	2017	1.28.2017	Late	N	Downstream	AquaticLeafLitter	SpringCreek	Clinton	EAB.ALL.2017.5
+EAB_ALL_2017_6	TGCTCGTAACTATCTG	N	1	15	2017	1.15.2017	Late	N	Upstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2017.6
+EAB_ALL_2017_8	ACGTGCGCGTCAGATA	N	1	15	2017	1.15.2017	Late	Y	Gap	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2017.8
+EAB_ALL_2017_9	ATAGTACCCGTCGCTA	N	1	15	2017	1.15.2017	Late	N	Downstream	AquaticLeafLitter	SessionsCreek	Grand	EAB.ALL.2017.9
+EAB_ALL_2017_10	AACGCTGATCGACGAG	N	2	12	2017	2.12.2017	Late	N	Upstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2017.10
+EAB_ALL_2017_11	TGCTCGTAACGTCTCG	N	2	12	2017	2.12.2017	Late	Y	Gap	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2017.11
+EAB_ALL_2017_12	CTCGACTTACGACGTG	N	2	12	2017	2.12.2017	Late	N	Downstream	AquaticLeafLitter	FrayerCreek	Grand	EAB.ALL.2017.12
+EAB_ALL_2017_15	TAGCAGCTCTAGAGCT	N	2	11	2017	2.11.2017	Late	N	Upstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2017.15
+EAB_ALL_2017_16	GTAACGAGTAGTGTAG	N	2	11	2017	2.11.2017	Late	Y	Gap	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2017.16
+EAB_ALL_2017_17	ATAGTACCTAGTGTAG	N	2	11	2017	2.11.2017	Late	N	Downstream	AquaticLeafLitter	StoneyCreek	Clinton	EAB.ALL.2017.17
+EAB_ALL_2017_24	GTAACGAGACGACGTG	N	3	3	2017	3.3.2017	Late	N	Upstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2017.24
+EAB_ALL_2017_25	CGAAGTATTAGTGTAG	N	3	3	2017	3.3.2017	Late	Y	Gap	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2017.25
+EAB_ALL_2017_26	TAGCAGCTACGACGTG	N	3	3	2017	3.3.2017	Late	N	Downstream	AquaticLeafLitter	SevenMileCreek	Kalamazoo	EAB.ALL.2017.26
+EAB_ALL_2017_29	ACGTGCGCATATACAC	N	2	4	2017	2.4.2017	Late	N	Upstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2017.29
+EAB_ALL_2017_30	ATAGTACCCTAGAGCT	N	2	4	2017	2.4.2017	Late	Y	Gap	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2017.30
+EAB_ALL_2017_31	CTCGACTT+TAGTGTAG	N	2	4	2017	2.4.2017	Late	N	Downstream	AquaticLeafLitter	AugustaCreek	Kalamazoo	EAB.ALL.2017.31
+EAB_LL_2016_1	CTCGACTTATATACAC	N	8	19	2016	8.19.2016	Early	Y	Gap	LiveLeaves	SpringCreek	Clinton	EAB.LL.2016.1
+EAB_LL_2016_2	GCGTATACCTAGAGCT	N	8	19	2016	8.19.2016	Early	N	Woods	LiveLeaves	SpringCreek	Clinton	EAB.LL.2016.2
+EAB_LL_2016_3	GCGTATACTAGTGTAG	N	8	19	2016	8.19.2016	Early	Y	Gap	LiveLeaves	StoneyCreek	Clinton	EAB.LL.2016.3
+EAB_LL_2016_4	TGCTCGTAACGACGTG	N	8	19	2016	8.19.2016	Early	N	Woods	LiveLeaves	StoneyCreek	Clinton	EAB.LL.2016.4
+EAB_LL_2016_5	TGCTCGTAATATACAC	N	8	21	2016	8.21.2016	Early	Y	Gap	LiveLeaves	SessionsCreek	Grand	EAB.LL.2016.5
+EAB_LL_2016_6	TGCTCGTACGTCGCTA	N	8	21	2016	8.21.2016	Early	N	Woods	LiveLeaves	SessionsCreek	Grand	EAB.LL.2016.6
+EAB_LL_2016_7	GCGTATACATATACAC	N	8	21	2016	8.21.2016	Early	Y	Gap	LiveLeaves	FrayerCreek	Grand	EAB.LL.2016.7
+EAB_LL_2016_8	TGCTCGTACTAGAGCT	N	8	21	2016	8.21.2016	Early	N	Woods	LiveLeaves	FrayerCreek	Grand	EAB.LL.2016.8
+EAB_LL_2016_9	GTAACGAGGACACTGA	N	8	18	2016	8.18.2016	Early	Y	Gap	LiveLeaves	SevenMileCreek	Kalamazoo	EAB.LL.2016.9
+EAB_LL_2016_10	CTCGACTTCTAGAGCT	N	8	18	2016	8.18.2016	Early	N	Woods	LiveLeaves	SevenMileCreek	Kalamazoo	EAB.LL.2016.10
+EAB_LL_2016_11	ACGTGCGCTGCGTACG	N	8	18	2016	8.18.2016	Early	Y	Gap	LiveLeaves	AugustaCreek	Kalamazoo	EAB.LL.2016.11
+EAB_LL_2016_12	TAGCAGCTCGTCGCTA	N	8	18	2016	8.18.2016	Early	N	Woods	LiveLeaves	AugustaCreek	Kalamazoo	EAB.LL.2016.12
+EAB_TL_2016_1	ATAGTACCGCTCTAGT	N	8	19	2016	8.19.2016	Early	Y	Gap	TerrestrialLitter	SpringCreek	Clinton	EAB.TL.2016.1
+EAB_TL_2016_2	GATCTACGACGACGTG	N	8	19	2016	8.19.2016	Early	N	Woods	TerrestrialLitter	SpringCreek	Clinton	EAB.TL.2016.2
+EAB_TL_2016_3	CGAAGTATATATACAC	N	8	19	2016	8.19.2016	Early	Y	Gap	TerrestrialLitter	StoneyCreek	Clinton	EAB.TL.2016.3
+EAB_TL_2016_4	TAGCAGCTTGCGTACG	N	8	19	2016	8.19.2016	Early	N	Woods	TerrestrialLitter	StoneyCreek	Clinton	EAB.TL.2016.4
+EAB_TL_2016_5	CGAAGTATCTAGAGCT	N	8	21	2016	8.21.2016	Early	Y	Gap	TerrestrialLitter	SessionsCreek	Grand	EAB.TL.2016.5
+EAB_TL_2016_6	GATCTACGCTAGAGCT	N	8	21	2016	8.21.2016	Early	N	Woods	TerrestrialLitter	SessionsCreek	Grand	EAB.TL.2016.6
+EAB_TL_2016_7	TAGCAGCTGACACTGA	N	8	21	2016	8.21.2016	Early	Y	Gap	TerrestrialLitter	FrayerCreek	Grand	EAB.TL.2016.7
+EAB_TL_2016_8	TAGCAGCTATATACAC	N	8	21	2016	8.21.2016	Early	N	Woods	TerrestrialLitter	FrayerCreek	Grand	EAB.TL.2016.8
+EAB_TL_2016_9	TAGCAGCTTAGTGTAG	N	8	18	2016	8.18.2016	Early	Y	Gap	TerrestrialLitter	SevenMileCreek	Kalamazoo	EAB.TL.2016.9
+EAB_TL_2016_10	GCGTATACTGCGTACG	N	8	18	2016	8.18.2016	Early	N	Woods	TerrestrialLitter	SevenMileCreek	Kalamazoo	EAB.TL.2016.10
+EAB_TL_2016_11	TCTCTATGACGACGTG	N	8	18	2016	8.18.2016	Early	Y	Gap	TerrestrialLitter	AugustaCreek	Kalamazoo	EAB.TL.2016.11
+EAB_TL_2016_12	ATAGTACCATATACAC	N	8	18	2016	8.18.2016	Early	N	Woods	TerrestrialLitter	AugustaCreek	Kalamazoo	EAB.TL.2016.12
+											
+#Sequence Reads											
+											
+EAB_ALL_2016_1_S55_L001_R1_001.fastq											
+EAB_ALL_2016_1_S55_L001_R2_001.fastq											
+											
+EAB_ALL_2016_2_S152_L001_R1_001.fastq											
+EAB_ALL_2016_2_S152_L001_R2_001.fastq											
+											
+EAB_ALL_2016_3_S200_L001_R1_001.fastq											
+EAB_ALL_2016_3_S200_L001_R2_001.fastq											
+											
+EAB_ALL_2016_4_S43_L001_R1_001.fastq											
+EAB_ALL_2016_4_S43_L001_R2_001.fastq											
+											
+EAB_ALL_2016_5_S39_L001_R1_001.fastq											
+EAB_ALL_2016_5_S39_L001_R2_001.fastq											
+											
+EAB_ALL_2016_6_S199_L001_R1_001.fastq											
+EAB_ALL_2016_6_S199_L001_R2_001.fastq											
+											
+EAB_ALL_2016_7_S257_L001_R1_001.fastq											
+EAB_ALL_2016_7_S257_L001_R2_001.fastq											
+											
+EAB_ALL_2016_8_S255_L001_R1_001.fastq											
+EAB_ALL_2016_8_S255_L001_R2_001.fastq											
+											
+EAB_ALL_2016_9_S89_L001_R1_001.fastq											
+EAB_ALL_2016_9_S89_L001_R2_001.fastq											
+											
+EAB_ALL_2016_10_S167_L001_R1_001.fastq											
+EAB_ALL_2016_10_S167_L001_R2_001.fastq											
+											
+EAB_ALL_2016_11_S275_L001_R1_001.fastq											
+EAB_ALL_2016_11_S275_L001_R2_001.fastq											
+											
+EAB_ALL_2016_12_S69_L001_R1_001.fastq											
+EAB_ALL_2016_12_S69_L001_R2_001.fastq											
+											
+EAB_ALL_2016_13_S86_L001_R1_001.fastq											
+EAB_ALL_2016_13_S86_L001_R2_001.fastq											
+											
+EAB_ALL_2016_14_S251_L001_R1_001.fastq											
+EAB_ALL_2016_14_S251_L001_R2_001.fastq											
+											
+EAB_ALL_2016_15_S44_L001_R1_001.fastq											
+EAB_ALL_2016_15_S44_L001_R2_001.fastq											
+											
+EAB_ALL_2016_16_S130_L001_R1_001.fastq											
+EAB_ALL_2016_16_S130_L001_R2_001.fastq											
+											
+EAB_ALL_2016_17_S239_L001_R1_001.fastq											
+EAB_ALL_2016_17_S239_L001_R2_001.fastq											
+											
+EAB_ALL_2016_18_S88_L001_R1_001.fastq											
+EAB_ALL_2016_18_S88_L001_R2_001.fastq											
+											
+EAB_ALL_2016_19_S110_L001_R1_001.fastq											
+EAB_ALL_2016_19_S110_L001_R2_001.fastq											
+											
+EAB_ALL_2016_20_S47_L001_R1_001.fastq											
+EAB_ALL_2016_20_S47_L001_R2_001.fastq											
+											
+EAB_ALL_2016_21_S170_L001_R1_001.fastq											
+EAB_ALL_2016_21_S170_L001_R2_001.fastq											
+											
+EAB_ALL_2016_22_S137_L001_R1_001.fastq											
+EAB_ALL_2016_22_S137_L001_R2_001.fastq											
+											
+EAB_ALL_2016_23_S169_L001_R1_001.fastq											
+EAB_ALL_2016_23_S169_L001_R2_001.fastq											
+											
+EAB_ALL_2016_24_S17_L001_R1_001.fastq											
+EAB_ALL_2016_24_S17_L001_R2_001.fastq											
+											
+EAB_ALL_2016_25_S214_L001_R1_001.fastq											
+EAB_ALL_2016_25_S214_L001_R2_001.fastq											
+											
+EAB_ALL_2016_26_S47_L001_R1_001.fastq											
+EAB_ALL_2016_26_S47_L001_R2_001.fastq											
+											
+EAB_ALL_2016_27_S60_L001_R1_001.fastq											
+EAB_ALL_2016_27_S60_L001_R2_001.fastq											
+											
+EAB_ALL_2016_28_S152_L001_R1_001.fastq											
+EAB_ALL_2016_28_S152_L001_R2_001.fastq											
+											
+EAB_ALL_2016_29_S34_L001_R1_001.fastq											
+EAB_ALL_2016_29_S34_L001_R2_001.fastq											
+											
+EAB_ALL_2016_30_S130_L001_R1_001.fastq											
+EAB_ALL_2016_30_S130_L001_R2_001.fastq											
+											
+EAB_ALL_2016_31_S29_L001_R1_001.fastq											
+EAB_ALL_2016_31_S29_L001_R2_001.fastq											
+											
+EAB_ALL_2016_32_S168_L001_R1_001.fastq											
+EAB_ALL_2016_32_S168_L001_R2_001.fastq											
+											
+EAB_ALL_2016_33_S30_L001_R1_001.fastq											
+EAB_ALL_2016_33_S30_L001_R2_001.fastq											
+											
+EAB_ALL_2016_34_S115_L001_R1_001.fastq											
+EAB_ALL_2016_34_S115_L001_R2_001.fastq											
+											
+EAB_ALL_2016_35_S80_L001_R1_001.fastq											
+EAB_ALL_2016_35_S80_L001_R2_001.fastq											
+											
+EAB_ALL_2016_36_S127_L001_R1_001.fastq											
+EAB_ALL_2016_36_S127_L001_R2_001.fastq											
+											
+EAB_ALL_2016_37_S85_L001_R1_001.fastq											
+EAB_ALL_2016_37_S85_L001_R2_001.fastq											
+											
+EAB_ALL_2016_38_S172_L001_R1_001.fastq											
+EAB_ALL_2016_38_S172_L001_R2_001.fastq											
+											
+EAB_ALL_2016_39_S121_L001_R1_001.fastq											
+EAB_ALL_2016_39_S121_L001_R2_001.fastq											
+											
+EAB_ALL_2016_40_S87_L001_R1_001.fastq											
+EAB_ALL_2016_40_S87_L001_R2_001.fastq											
+											
+EAB_ALL_2016_41_S26_L001_R1_001.fastq											
+EAB_ALL_2016_41_S26_L001_R2_001.fastq											
+											
+EAB_ALL_2016_42_S125_L001_R1_001.fastq											
+EAB_ALL_2016_42_S125_L001_R2_001.fastq											
+											
+EAB_ALL_2016_43_S25_L001_R1_001.fastq											
+EAB_ALL_2016_43_S25_L001_R2_001.fastq											
+											
+EAB_ALL_2016_44_S1_L001_R1_001.fastq											
+EAB_ALL_2016_44_S1_L001_R2_001.fastq											
+											
+EAB_ALL_2016_45_S133_L001_R1_001.fastq											
+EAB_ALL_2016_45_S133_L001_R2_001.fastq											
+											
+EAB_ALL_2016_46_S136_L001_R1_001.fastq											
+EAB_ALL_2016_46_S136_L001_R2_001.fastq											
+											
+EAB_ALL_2016_47_S157_L001_R1_001.fastq											
+EAB_ALL_2016_47_S157_L001_R2_001.fastq											
+											
+EAB_ALL_2016_48_S92_L001_R1_001.fastq											
+EAB_ALL_2016_48_S92_L001_R2_001.fastq											
+											
+EAB_ALL_2016_49_S151_L001_R1_001.fastq											
+EAB_ALL_2016_49_S151_L001_R2_001.fastq											
+											
+EAB_ALL_2016_50_S146_L001_R1_001.fastq											
+EAB_ALL_2016_50_S146_L001_R2_001.fastq											
+											
+EAB_ALL_2016_51_S58_L001_R1_001.fastq											
+EAB_ALL_2016_51_S58_L001_R2_001.fastq											
+											
+EAB_ALL_2016_52_S96_L001_R1_001.fastq											
+EAB_ALL_2016_52_S96_L001_R2_001.fastq											
+											
+EAB_ALL_2016_53_S52_L001_R1_001.fastq											
+EAB_ALL_2016_53_S52_L001_R2_001.fastq											
+											
+EAB_ALL_2016_54_S174_L001_R1_001.fastq											
+EAB_ALL_2016_54_S174_L001_R2_001.fastq											
+											
+EAB_ALL_2016_55_S40_L001_R1_001.fastq											
+EAB_ALL_2016_55_S40_L001_R2_001.fastq											
+											
+EAB_ALL_2016_56_S192_L001_R1_001.fastq											
+EAB_ALL_2016_56_S192_L001_R2_001.fastq											
+											
+EAB_ALL_2016_57_S165_L001_R1_001.fastq											
+EAB_ALL_2016_57_S165_L001_R2_001.fastq											
+											
+EAB_ALL_2016_58_S112_L001_R1_001.fastq											
+EAB_ALL_2016_58_S112_L001_R2_001.fastq											
+											
+EAB_ALL_2017_1_S125_L001_R1_001.fastq											
+EAB_ALL_2017_1_S125_L001_R2_001.fastq											
+											
+EAB_ALL_2017_2_S98_L001_R1_001.fastq											
+EAB_ALL_2017_2_S98_L001_R2_001.fastq											
+											
+EAB_ALL_2017_3_S16_L001_R1_001.fastq											
+EAB_ALL_2017_3_S16_L001_R2_001.fastq											
+											
+EAB_ALL_2017_4_S65_L001_R1_001.fastq											
+EAB_ALL_2017_4_S65_L001_R2_001.fastq											
+											
+EAB_ALL_2017_5_S11_L001_R1_001.fastq											
+EAB_ALL_2017_5_S11_L001_R2_001.fastq											
+											
+EAB_ALL_2017_6_S64_L001_R1_001.fastq											
+EAB_ALL_2017_6_S64_L001_R2_001.fastq											
+											
+EAB_ALL_2017_7_S175_L001_R1_001.fastq											
+EAB_ALL_2017_7_S175_L001_R2_001.fastq											
+											
+EAB_ALL_2017_8_S272_L001_R1_001.fastq											
+EAB_ALL_2017_8_S272_L001_R2_001.fastq											
+											
+EAB_ALL_2017_9_S96_L001_R1_001.fastq											
+EAB_ALL_2017_9_S96_L001_R2_001.fastq											
+											
+EAB_ALL_2017_10_S212_L001_R1_001.fastq											
+EAB_ALL_2017_10_S212_L001_R2_001.fastq											
+											
+EAB_ALL_2017_11_S173_L001_R1_001.fastq											
+EAB_ALL_2017_11_S173_L001_R2_001.fastq											
+											
+EAB_ALL_2017_12_S3_L001_R1_001.fastq											
+EAB_ALL_2017_12_S3_L001_R2_001.fastq											
+											
+EAB_ALL_2017_13_S101_L001_R1_001.fastq											
+EAB_ALL_2017_13_S101_L001_R2_001.fastq											
+											
+EAB_ALL_2017_14_S268_L001_R1_001.fastq											
+EAB_ALL_2017_14_S268_L001_R2_001.fastq											
+											
+EAB_ALL_2017_15_S98_L001_R1_001.fastq											
+EAB_ALL_2017_15_S98_L001_R2_001.fastq											
+											
+EAB_ALL_2017_16_S71_L001_R1_001.fastq											
+EAB_ALL_2017_16_S71_L001_R2_001.fastq											
+											
+EAB_ALL_2017_17_S191_L001_R1_001.fastq											
+EAB_ALL_2017_17_S191_L001_R2_001.fastq											
+											
+EAB_ALL_2017_18_S110_L001_R1_001.fastq											
+EAB_ALL_2017_18_S110_L001_R2_001.fastq											
+											
+EAB_ALL_2017_19_S124_L001_R1_001.fastq											
+EAB_ALL_2017_19_S124_L001_R2_001.fastq											
+											
+EAB_ALL_2017_20_S103_L001_R1_001.fastq											
+EAB_ALL_2017_20_S103_L001_R2_001.fastq											
+											
+EAB_ALL_2017_21_S5_L001_R1_001.fastq											
+EAB_ALL_2017_21_S5_L001_R2_001.fastq											
+											
+EAB_ALL_2017_22_S72_L001_R1_001.fastq											
+EAB_ALL_2017_22_S72_L001_R2_001.fastq											
+											
+EAB_ALL_2017_23_S182_L001_R1_001.fastq											
+EAB_ALL_2017_23_S182_L001_R2_001.fastq											
+											
+EAB_ALL_2017_24_S10_L001_R1_001.fastq											
+EAB_ALL_2017_24_S10_L001_R2_001.fastq											
+											
+EAB_ALL_2017_25_S141_L001_R1_001.fastq											
+EAB_ALL_2017_25_S141_L001_R2_001.fastq											
+											
+EAB_ALL_2017_26_S111_L001_R1_001.fastq											
+EAB_ALL_2017_26_S111_L001_R2_001.fastq											
+											
+EAB_ALL_2017_27_S84_L001_R1_001.fastq											
+EAB_ALL_2017_27_S84_L001_R2_001.fastq											
+											
+EAB_ALL_2017_28_S91_L001_R1_001.fastq											
+EAB_ALL_2017_28_S91_L001_R2_001.fastq											
+											
+EAB_ALL_2017_29_S178_L001_R1_001.fastq											
+EAB_ALL_2017_29_S178_L001_R2_001.fastq											
+											
+EAB_ALL_2017_30_S2_L001_R1_001.fastq											
+EAB_ALL_2017_30_S2_L001_R2_001.fastq											
+											
+EAB_ALL_2017_31_S128_L001_R1_001.fastq											
+EAB_ALL_2017_31_S128_L001_R2_001.fastq											
+											
+EAB_ALL_2017_32_S82_L001_R1_001.fastq											
+EAB_ALL_2017_32_S82_L001_R2_001.fastq											
+											
+EAB_ALL_2017_33_S66_L001_R1_001.fastq											
+EAB_ALL_2017_33_S66_L001_R2_001.fastq											
+											
+EAB_LL_2016_1_S90_L001_R1_001.fastq											
+EAB_LL_2016_1_S90_L001_R2_001.fastq											
+											
+EAB_LL_2016_2_S102_L001_R1_001.fastq											
+EAB_LL_2016_2_S102_L001_R2_001.fastq											
+											
+EAB_LL_2016_3_S137_L001_R1_001.fastq											
+EAB_LL_2016_3_S137_L001_R2_001.fastq											
+											
+EAB_LL_2016_4_S51_L001_R1_001.fastq											
+EAB_LL_2016_4_S51_L001_R2_001.fastq											
+											
+EAB_LL_2016_5_S105_L001_R1_001.fastq											
+EAB_LL_2016_5_S105_L001_R2_001.fastq											
+											
+EAB_LL_2016_6_S129_L001_R1_001.fastq											
+EAB_LL_2016_6_S129_L001_R2_001.fastq											
+											
+EAB_LL_2016_7_S9_L001_R1_001.fastq											
+EAB_LL_2016_7_S9_L001_R2_001.fastq											
+											
+EAB_LL_2016_8_S36_L001_R1_001.fastq											
+EAB_LL_2016_8_S36_L001_R2_001.fastq											
+											
+EAB_LL_2016_9_S55_L001_R1_001.fastq											
+EAB_LL_2016_9_S55_L001_R2_001.fastq											
+											
+EAB_LL_2016_10_S104_L001_R1_001.fastq											
+EAB_LL_2016_10_S104_L001_R2_001.fastq											
+											
+EAB_LL_2016_11_S114_L001_R1_001.fastq											
+EAB_LL_2016_11_S114_L001_R2_001.fastq											
+											
+EAB_LL_2016_12_S134_L001_R1_001.fastq											
+EAB_LL_2016_12_S134_L001_R2_001.fastq											
+											
+EAB_TL_2016_1_S132_L001_R1_001.fastq											
+EAB_TL_2016_1_S132_L001_R2_001.fastq											
+											
+EAB_TL_2016_2_S65_L001_R1_001.fastq											
+EAB_TL_2016_2_S65_L001_R2_001.fastq											
+											
+EAB_TL_2016_3_S143_L001_R1_001.fastq											
+EAB_TL_2016_3_S143_L001_R2_001.fastq											
+											
+EAB_TL_2016_4_S116_L001_R1_001.fastq											
+EAB_TL_2016_4_S116_L001_R2_001.fastq											
+											
+EAB_TL_2016_5_S119_L001_R1_001.fastq											
+EAB_TL_2016_5_S119_L001_R2_001.fastq											
+											
+EAB_TL_2016_6_S28_L001_R1_001.fastq											
+EAB_TL_2016_6_S28_L001_R2_001.fastq											
+											
+EAB_TL_2016_7_S184_L001_R1_001.fastq											
+EAB_TL_2016_7_S184_L001_R2_001.fastq											
+											
+EAB_TL_2016_8_S180_L001_R1_001.fastq											
+EAB_TL_2016_8_S180_L001_R2_001.fastq											
+											
+EAB_TL_2016_9_S56_L001_R1_001.fastq											
+EAB_TL_2016_9_S56_L001_R2_001.fastq											
+											
+EAB_TL_2016_10_S86_L001_R1_001.fastq											
+EAB_TL_2016_10_S86_L001_R2_001.fastq											
+											
+EAB_TL_2016_11_S145_L001_R1_001.fastq											
+EAB_TL_2016_11_S145_L001_R2_001.fastq											
+											
+EAB_TL_2016_12_S14_L001_R1_001.fastq											
+EAB_TL_2016_12_S14_L001_R2_001.fastq											
+											
+################################											
+											
+# 2. Import data											
+											
+"# cd to Desktop folder named ""Core"""											
+											
+cd ~/Desktop/Core_Seqs											
+											
+source activate qiime2-2019.10											
+											
+qiime tools import 	--type 'SampleData[PairedEndSequencesWithQuality]' 	--input-path pe-33-manifest_EAB.csv 	--output-path EAB_pe_demux.qza 	--input-format PairedEndFastqManifestPhred33											
+  											
+cd ~/Desktop/Core
+
+qiime demux summarize --i-data EAB_pe_demux.qza --o-visualization EAB_pe_demux.qzv											
+  											
+#Look at visualization to determine trim and trunc											
+#trim = 2nd percentile quality score											
+#truc = sequence length summary - 1											
+											
+qiime dada2 denoise-paired 	--i-demultiplexed-seqs EAB_pe_demux.qza   --p-trim-left-f 12  --p-trim-left-r 12  --p-trunc-len-f 249 --p-trunc-len-r 249  --o-table EAB_table.qza  --o-representative-sequences EAB_rep-seqs.qza --o-denoising-stats EAB_denoising-stats.qza											
+  											
+qiime feature-table summarize  --i-table EAB_table.qza  --o-visualization EAB_table.qzv  --m-sample-metadata-file EAB_Paired_Map											
+											
+qiime feature-table tabulate-seqs  --i-data EAB_rep-seqs.qza  --o-visualization EAB_rep-seqs.qzv											
+											
+qiime metadata tabulate  --m-input-file EAB_denoising-stats.qza  --o-visualization EAB_denoising-stats.qzv											
+  											
+qiime phylogeny align-to-tree-mafft-fasttree  --i-sequences EAB_rep-seqs.qza --o-alignment EAB_aligned-rep-seqs.qza  --o-masked-alignment EAB_masked-aligned-rep-seqs.qza  --o-tree EAB_unrooted-tree.qza --o-rooted-tree EAB_rooted-tree.qza											
+  											  												
+#import green genes sequences
+											
+qiime tools import --input-path /usr/local/MacQIIME_1.9.1-20150604_OS10.7/macqiime/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta --type 'FeatureData[Sequence]'  --output-path 97_otus.qza											
+											
+#inport taxonomy		
+									
+qiime tools import --input-path /usr/local/MacQIIME_1.9.1-20150604_OS10.7/macqiime/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/taxonomy/97_otu_taxonomy.txt  --type 'FeatureData[Taxonomy]' --input-format HeaderlessTSVTaxonomyFormat --output-path ref_taxonomy.qza											
+											
+#Classify taxonomy											
+qiime feature-classifier classify-sklearn --i-classifier gg-13-8-99-515-806-nb-classifier.qza --i-reads EAB_rep-seqs.qza --o-classification EAB_taxonomy.qza											
+  											
+#filter out chloroplast and mitochondria
+
+qiime feature-table filter-features \
+  --i-table EAB_table.qza \
+  --m-metadata-file EAB_taxonomy.qza \
+  --p-where "Taxon NOT LIKE '%Chloroplast%'" \
+  --o-filtered-table EAB_filtered-table-sans-chloroplast.qza \
+  
+qiime feature-table filter-features \
+  --i-table EAB_filtered-table-sans-chloroplast.qza \
+  --m-metadata-file EAB_taxonomy.qza \
+  --p-where "Taxon NOT LIKE '%mitochondria%'" \
+  --o-filtered-table EAB_filtered-table-sans-chloromito.qza \
+  
+qiime feature-table filter-seqs \
+  --i-data EAB_rep-seqs.qza \
+  --i-table EAB_filtered-table-sans-chloromito.qza \
+  --o-filtered-data EAB_filtered-seqs-sans-chloroplast.qza
+  
+#re-run tree and rarefy
+
+qiime phylogeny align-to-tree-mafft-fasttree  --i-sequences EAB_filtered-seqs-sans-chloroplast.qza --o-alignment EAB_aligned-rep-seqs_nchl.qza  --o-masked-alignment EAB_masked-aligned-rep-seqs_nchl.qza  --o-tree EAB_unrooted-tree_nchl.qza --o-rooted-tree EAB_rooted-tree_nchl.qza											
+  											
+qiime diversity alpha-rarefaction --i-table EAB_filtered-table-sans-chloromito.qza --i-phylogeny EAB_rooted-tree_nchl.qza --p-metrics chao1 --p-metrics shannon --p-metrics faith_pd --p-metrics observed_otus --p-max-depth 4000 --p-steps 40 --m-metadata-file EAB_Paired_Map.txt --o-visualization EAB_alpha-rarefaction_nchl.qzv											
+											
+#download csv files	
+#5 samples failed, to keep all the rest of the samples, rarefy to 1100																				
+											
+qiime diversity core-metrics-phylogenetic --i-phylogeny EAB_rooted-tree_nchl.qza --i-table EAB_filtered-table-sans-chloromito.qza --p-sampling-depth 1100 --m-metadata-file EAB_Paired_Map.txt --output-dir EAB_core-metrics-results_nchl											
+  
+#filter rarefied feature table to delete singletons	
+										
+qiime feature-table filter-samples --i-table EAB_core-metrics-results_nchl/rarefied_table.qza --p-min-frequency 2 --o-filtered-table EAB_table_rare_ns_nchl.qza											
+  											
+qiime feature-table filter-seqs --i-data EAB_filtered-seqs-sans-chloroplast.qza --i-table EAB_table_rare_ns_nchl.qza --o-filtered-data EAB_filtered-seqs_nchl.qza											
+																			
+#Classify taxonomy											
+qiime feature-classifier classify-sklearn --i-classifier gg-13-8-99-515-806-nb-classifier.qza --i-reads EAB_filtered-seqs_nchl.qza --o-classification EAB_taxonomy_nchl.qza											
+
+qiime metadata tabulate --m-input-file EAB_taxonomy_nchl.qza  --o-visualization EAB_taxonomy.qzv											
+											
+qiime taxa collapse --i-table EAB_table_rare_ns_nchl.qza --i-taxonomy EAB_taxonomy_nchl.qza --p-level 5 --o-collapsed-table EAB_table_f.qza											
+  											
+qiime taxa collapse --i-table EAB_table_rare_ns_nchl.qza --i-taxonomy EAB_taxonomy_nchl.qza --p-level 2 --o-collapsed-table EAB_table_p.qza											
+  											
+qiime tools export --input-path EAB_table_rare_ns_nchl.qza --output-path EAB_exported-feature-table											
+											
+biom convert -i EAB_exported-feature-table/feature-table.biom -o EAB_otu_table.txt --to-tsv											
+											
+qiime tools export --input-path EAB_taxonomy_nchl.qza --output-path EAB_exported-taxonomy/											
+											
+qiime tools export --input-path EAB_table_f.qza --output-path EAB_exported-taxonomyf											
+  											
+biom convert -i EAB_exported-taxonomyf/feature-table.biom -o EAB_otu_table_f.txt --to-tsv											
+  											
+qiime tools export --input-path EAB_table_p.qza --output-path EAB_exported-taxonomyp											
+  											
+biom convert -i EAB_exported-taxonomyp/feature-table.biom -o EAB_otu_table_p.txt --to-tsv											
+  											
+qiime tools export --input-path EAB_core-metrics-results_nchl/weighted_unifrac_distance_matrix.qza --output-path EAB_exported-wunifrac											
+											
+qiime tools export  --input-path EAB_core-metrics-results_nchl/faith_pd_vector.qza --output-path EAB_exported-faithpd											
+											
+qiime diversity alpha  --i-table EAB_table_rare_ns_nchl.qza  --p-metric chao1 --o-alpha-diversity EAB_chao1.qza											
+											
+qiime tools export --input-path EAB_chao1.qza --output-path EAB_exported-chao1
