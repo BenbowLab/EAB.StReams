@@ -2325,6 +2325,10 @@ summary(lmer.logFPD)
 #intercept and source significant
 #for interpretability, see summary for not transformed
 summary(lmer.FPD)
+anova(lmer.FPD)
+EAB_16S_fpd_map %>% emmeans_test(log10faith_pd ~ Source, p.adjust.method = "bonferroni",
+                                  model = lmer.FPD)
+#TLL significantly greater than LL and ALL
 #visualize
 ggplot(EAB_16S_fpd_map, aes(x=Source, y=faith_pd)) +
   geom_point(size=3) +
@@ -2377,6 +2381,9 @@ shapiro.test(residuals(lmer.logcha))
 summary(lmer.logcha)
 #intercept and source significant
 summary(lmer.cha)
+EAB_16S_cha_map %>% emmeans_test(log10chao1 ~ Source, p.adjust.method = "bonferroni",
+                                 model = lmer.logcha)
+#TLL greater than ALL and LL
 #visualize
 ggplot(EAB_16S_cha_map, aes(x=Source, y=chao1)) +
   geom_point(size=3) +
@@ -2879,7 +2886,7 @@ names(Paired_Macroinvertebrates)
 #Create sample ID name by combining environmental variables into one name in new column
 Paired_Macroinvertebrates$SampleID<-factor(paste(Paired_Macroinvertebrates$Stream, Paired_Macroinvertebrates$Date, Paired_Macroinvertebrates$Gap, Paired_Macroinvertebrates$Gap_location))
 #Create new column that combines taxonomic variables to family level
-Paired_Macroinvertebrates$Taxonomy<-as.factor(paste(Paired_Macroinvertebrates$Class, Paired_Macroinvertebrates$Order, Paired_Macroinvertebrates$Family))
+Paired_Macroinvertebrates$Taxonomy<-as.factor(paste(Paired_Macroinvertebrates$Class, Paired_Macroinvertebrates$Order, Paired_Macroinvertebrates$Family, sep=""))
 #taxonomy levels
 levels(Paired_Macroinvertebrates$Taxonomy)
 
@@ -2890,14 +2897,14 @@ sum(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)])
 #Find most abundant taxa
 sort(colSums(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)]))
 #most abundant taxa elmidae with 519 individuals
-stat.desc(EAB_M_Matrix$`Insecta Coleoptera Elmidae`)
+stat.desc(EAB_M_Matrix$`InsectaColeopteraElmidae`)
 #make relative abundances
 str(EAB_M_Matrix)
 EAB_M_MatrixRA<-data.frame(make_relative(as.matrix(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)])))
 EAB_M_MatrixRA[is.na(EAB_M_MatrixRA)] <- 0
 str(EAB_M_MatrixRA)
 sort(colMeans(EAB_M_MatrixRA))
-stat.desc(EAB_M_MatrixRA$Insecta.Coleoptera.Elmidae)
+stat.desc(EAB_M_MatrixRA$InsectaColeopteraElmidae)
 
 #combine eab_Paired_ALL_Stand with macs
 EAB_Paired_Macs_Stand<-merge(EAB_Ter_H2o_aqcwd_ALL, EAB_M_Matrix, by=c("Stream","Gap_location","Date"))
@@ -2935,73 +2942,73 @@ EAB_Inverts_Com_GL_indic_sig<-subset(EAB_Inverts_Com_GL_indic, psidak<=0.05)
 #Determine which are in all watersheds
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Coleoptera Elmidae", type = "mean_se")
+  get_summary_stats("InsectaColeopteraElmidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Coleoptera Elmidae", type = "mean_se")
+  get_summary_stats("InsectaColeopteraElmidae", type = "mean_se")
 #in all streams
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Ephemeroptera Ephemerellidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraEphemerellidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Ephemeroptera Ephemerellidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraEphemerellidae", type = "mean_se")
 #missing in stoney creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Ephemeroptera Heptageniidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraHeptageniidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Ephemeroptera Heptageniidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraHeptageniidae", type = "mean_se")
 #missing in spring creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Plecoptera Nemouridae", type = "mean_se")
+  get_summary_stats("InsectaPlecopteraNemouridae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Plecoptera Nemouridae", type = "mean_se")
+  get_summary_stats("InsectaPlecopteraNemouridae", type = "mean_se")
 #missing in spring creek and stoney creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Malacostraca Amphipoda Gammaridae", type = "mean_se")
+  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Malacostraca Amphipoda Gammaridae", type = "mean_se")
+  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
 #in all streams
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Coleoptera Psephenidae", type = "mean_se")
+  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Coleoptera Psephenidae", type = "mean_se")
+  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
 #missing in frayer, sessions and spring
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Ephemeroptera Baetidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Ephemeroptera Baetidae", type = "mean_se")
+  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
 #missing in spring creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Plecoptera Taeniopterygidae", type = "mean_se")
+  get_summary_stats("InsectaPlecopteraTaeniopterygidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Plecoptera Taeniopterygidae", type = "mean_se")
+  get_summary_stats("InsectaPlecopteraTaeniopterygidae", type = "mean_se")
 #only found in augusta and seven mile creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Trichoptera Hydropsychidae", type = "mean_se")
+  get_summary_stats("InsectaTrichopteraHydropsychidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Trichoptera Hydropsychidae", type = "mean_se")
+  get_summary_stats("InsectaTrichopteraHydropsychidae", type = "mean_se")
 #found in all streams
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("Insecta Trichoptera Rhyacophilidae", type = "mean_se")
+  get_summary_stats("InsectaTrichopteraRhyacophilidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
   group_by(Watershed) %>%
-  get_summary_stats("Insecta Trichoptera Rhyacophilidae", type = "mean_se")
+  get_summary_stats("InsectaTrichopteraRhyacophilidae", type = "mean_se")
 #missing in all but sessions and seven mile
 
 #so work with hydropsychidae, Gammaridae and Elmidae
@@ -3095,7 +3102,7 @@ EAB_Paired_Macs_Stand %>%
 
 ##Model populations as mixed model like microbes
 #Calculate elmidae relative abundance
-EAB_Paired_Macs_Stand$ElmidaeRA<-EAB_Paired_Macs_Stand$'Insecta Coleoptera Elmidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
+EAB_Paired_Macs_Stand$ElmidaeRA<-EAB_Paired_Macs_Stand$'InsectaColeopteraElmidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
 #build model
 lmer.elm= lme(ElmidaeRA~Watershed+Gap_location, random=~1|Stream,
              data=EAB_Paired_Macs_Stand,
@@ -3108,7 +3115,7 @@ summary(lmer.elm)
 #nothing significant
 
 #Calculate gammaridae relative abundance
-EAB_Paired_Macs_Stand$GammaridRA<-EAB_Paired_Macs_Stand$'Malacostraca Amphipoda Gammaridae'/rowSums(EAB_Paired_Macs_Stand[167:213])
+EAB_Paired_Macs_Stand$GammaridRA<-EAB_Paired_Macs_Stand$'MalacostracaAmphipodaGammaridae'/rowSums(EAB_Paired_Macs_Stand[167:213])
 #build model
 lmer.gam= lme(GammaridRA~Watershed+Gap_location, random=~1|Stream,
               data=EAB_Paired_Macs_Stand,
@@ -3124,11 +3131,28 @@ lmer.log10gam= lme(log10GammaridRA~Watershed+Gap_location, random=~1|Stream,
 #check assumptions
 hist(residuals(lmer.log10gam),col="darkgray")
 shapiro.test(residuals(lmer.log10gam))
-summary(lmer.gam)
-#nothing significant
+#W = 0.81049, p-value = 1.058e-06 not normal try binomial
+names(EAB_Paired_Macs_Stand)
+EAB_Paired_Macs_Stand$Total_Macs<-rowSums(EAB_Paired_Macs_Stand[167:213])
+glmer.gam<-glmer(GammaridRA~Watershed+Gap_location+1|Stream,family=binomial,
+               weights=Total_Macs,
+               data=EAB_Paired_Macs_Stand)
+summary(glmer.gam)
+#fail to converge, so see if Stream is adding to model
+glm.gam<-glm(GammaridRA~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+           data=EAB_Paired_Macs_Stand)
+#check assumptions
+hist(residuals(glm.gam),col="darkgray")
+shapiro.test(residuals(glm.gam))
+#W = 0.97544, p-value = 0.3541, normal
+summary(glm.gam)
+#kalamazoo signifiant
+EAB_Paired_Macs_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("GammaridRA", type = "mean_se")
 
 #Calculate hydropsychidae relative abundance
-EAB_Paired_Macs_Stand$HydroRA<-EAB_Paired_Macs_Stand$'Insecta Trichoptera Hydropsychidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
+EAB_Paired_Macs_Stand$HydroRA<-EAB_Paired_Macs_Stand$'InsectaTrichopteraHydropsychidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
 #build model
 lmer.hy= lme(HydroRA~Watershed+Gap_location, random=~1|Stream,
               data=EAB_Paired_Macs_Stand,
@@ -3144,5 +3168,289 @@ lmer.log10hy= lme(log10HydroRA~Watershed+Gap_location, random=~1|Stream,
 #check assumptions
 hist(residuals(lmer.log10hy),col="darkgray")
 shapiro.test(residuals(lmer.log10hy))
-summary(lmer.hy)
+#W = 0.75117, p-value = 5.073e-08, not significant, try binomial
+glmer.hy<-glmer(HydroRA~Watershed+Gap_location+1|Stream,family=binomial,
+                 weights=Total_Macs,
+                 data=EAB_Paired_Macs_Stand)
+summary(glmer.hy)
+#fail to converge, so see if Stream is adding to model
+glm.hy<-glm(HydroRA~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+             data=EAB_Paired_Macs_Stand)
+#check assumptions
+hist(residuals(glm.hy),col="darkgray")
+shapiro.test(residuals(glm.hy))
+#W = 0.96494, p-value = 0.1282, normal
+summary(glm.hy)
+#nothing signifiant
+
+###################################
+#Functional Feeding Groups
+##########################
+
+#See names
+names(EAB_M_Matrix)
+EAB_M_Matrix$Gap<-NULL
+Macrosmelt<- melt(EAB_M_Matrix, id=c("Stream","Date","Gap_location")) 
+names(Macrosmelt)[names(Macrosmelt) == "variable"] <- "Taxa"
+#Combine FFG with dataset
+MacroFFGs<-read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_Macro_FFGs.csv", sep = ",", header = T)
+MacrosMFFG<-merge(Macrosmelt, MacroFFGs, by="Taxa")
+str(MacrosMFFG)
+MacrosFFG<-dcast(MacrosMFFG, Stream+Date+Gap_location~FFG, sum)
+
+#Find most abundant FFG
+colSums(MacrosFFG[,4:ncol(MacrosFFG)])
+#most abundant FFG collectorgatherer with 1272 individuals
+stat.desc(MacrosFFG$CollectorGatherer)
+#mean 23.556 se 5.095
+#make relative abundances
+str(MacrosFFG)
+EAB_FFG_MatrixRA<-MacrosFFG
+EAB_FFG_MatrixRA[,4:ncol(EAB_FFG_MatrixRA)]<-data.frame(make_relative(as.matrix(EAB_FFG_MatrixRA[,4:ncol(EAB_FFG_MatrixRA)])))
+EAB_FFG_MatrixRA[is.na(EAB_FFG_MatrixRA)] <- 0
+sort(colMeans(EAB_FFG_MatrixRA[,4:ncol(EAB_FFG_MatrixRA)]))
+#collector gatherer
+stat.desc(EAB_FFG_MatrixRA$CollectorGatherer)
+
+#combine eab_Paired_ALL_Stand with macs
+EAB_Paired_FFG_Stand<-merge(EAB_Ter_H2o_aqcwd_ALL,MacrosFFG, by=c("Stream","Gap_location","Date"))
+#split up into environmental and community
+names(EAB_Paired_FFG_Stand)
+EAB_Paired_FFG_Stand_com<-EAB_Paired_FFG_Stand[,166:ncol(EAB_Paired_FFG_Stand)]
+EABFFGComtotbray0Stand<-as.matrix(bray0(EAB_Paired_FFG_Stand_com))
+EAB_Paired_FFG_Stand_env<-EAB_Paired_FFG_Stand[,1:165]
+EAB_Paired_FFG_Stand_GA<-EAB_Paired_FFG_Stand_env$Gap_Area
+EAB_Paired_FFG_Stand_GA_cat<-as.factor(EAB_Paired_FFG_Stand_GA)
+EAB_Paired_FFG_Stand_YGF<-EAB_Paired_FFG_Stand_env$Year_Gapformation
+EAB_Paired_FFG_Stand_YGF_cat<-as.factor(EAB_Paired_FFG_Stand_YGF)
+EAB_Paired_FFG_Stand_GL<-EAB_Paired_FFG_Stand_env$Gap_location
+EAB_Paired_FFG_Stand_W<-EAB_Paired_FFG_Stand_env$Watershed
+
+#analyze community
+adonis(as.dist(EABFFGComtotbray0Stand) ~ Watershed*Gap_location+Stream,
+       data=EAB_Paired_FFG_Stand_env,permutations=9999)
+#Watershed and stream significant
+
+EAB_FFG_Com_W_indic<-signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_W,  mode=0, alternative = "two.sided",control = how(nperm=9999))
+EAB_FFG_Com_W_indic_sig<-subset(EAB_FFG_Com_W_indic, psidak<=0.05)
+#All 5 families indicate watershed
+#Collector Filterer Grazer and Predator Kalamazoo
+#Collector gatherer and shredder Clinton
+
+#Gap Location
+EAB_FFG_Com_GL_indic<-signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_GL,  mode=0, alternative = "two.sided",control = how(nperm=9999))
+EAB_FFG_Com_GL_indic_sig<-subset(EAB_FFG_Com_GL_indic, psidak<=0.05)
+#no indicator ffgs
+
+#NMDS analysis
+EAB_Paired_FFG_NMDS<-metaMDS(as.dist(EABFFGComtotbray0Stand))
+#stress 0.0906 
+
+#Stressplot macroinvertebrate Nmds
+stressplot(EAB_Paired_FFG_NMDS)
+
+#NMDS plot for watershed
+ordiplot(EAB_Paired_FFG_NMDS, type="n")
+with(EAB_Paired_FFG_NMDS, points(EAB_Paired_FFG_NMDS, display="sites", col=Watershed_col_vec[EAB_Paired_FFG_Stand_W], pch=19))
+with(EAB_Paired_FFG_NMDS, legend("topleft", legend=levels(EAB_Paired_FFG_Stand_W), bty="n", col=Watershed_col_vec, pch=19, pt.bg=Watershed_col_vec))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_W, kind="se", conf=0.95, lwd=2, col="#af8dc3", show.groups = "Clinton"))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_W, kind="se", conf=0.95, lwd=2, col="#fdc086", show.groups = "Grand"))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_W, kind="se", conf=0.95, lwd=2, col="#7fbf7b", show.groups = "Kalamazoo"))
+
+#Model relative abundances of all functional feeding groups
+#Combine FFGs with other metadata
+EAB_Paired_FFG_Stand_RA<-merge(EAB_Ter_H2o_aqcwd_ALL,EAB_FFG_MatrixRA, by=c("Stream","Gap_location","Date"))
+#collector gatherers
+lmer.cg= lme(CollectorGatherer~Watershed+Gap_location, random=~1|Stream,
+              data=EAB_Paired_FFG_Stand_RA,
+              method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.cg),col="darkgray")
+shapiro.test(residuals(lmer.cg))
+#W = 0.9754, p-value = 0.3291, normal
+summary(lmer.cg)
 #nothing significant
+EAB_Paired_FFG_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("CollectorGatherer", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Watershed) %>%
+  get_summary_stats("CollectorGatherer", type = "mean_se")
+
+#collector filterers
+lmer.cf= lme(CollectorFilterer~Watershed+Gap_location, random=~1|Stream,
+             data=EAB_Paired_FFG_Stand_RA,
+             method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.cf),col="darkgray")
+shapiro.test(residuals(lmer.cf))
+#W = 0.7749, p-value = 1.079e-07, not normal
+EAB_Paired_FFG_Stand_RA$log10CF<-log10(EAB_Paired_FFG_Stand_RA$CollectorFilterer+1)
+lmer.log10cf= lme(log10CF~Watershed+Gap_location, random=~1|Stream,
+             data=EAB_Paired_FFG_Stand_RA,
+             method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.log10cf),col="darkgray")
+shapiro.test(residuals(lmer.log10cf))
+#W = 0.79245, p-value = 2.704e-07, not normal, try binomial
+#Create weights by rowsums
+EAB_Paired_FFG_Stand_RA$Total_Macs<-rowSums(EAB_Paired_FFG_Stand[166:170])
+glmer.cf<-glmer(CollectorFilterer~Watershed+Gap_location+1|Stream,family=binomial,
+                weights=Total_Macs,
+                  data=EAB_Paired_FFG_Stand_RA)
+summary(glmer.cf)
+#fail to converge, so see if Stream is adding to model
+glm.cf<-glm(CollectorFilterer~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+                data=EAB_Paired_FFG_Stand_RA)
+#check assumptions
+hist(residuals(glm.cf),col="darkgray")
+shapiro.test(residuals(glm.cf))
+#W = 0.95793, p-value = 0.05569, normal
+summary(glm.cf)
+#Kalamazoo significant
+EAB_Paired_FFG_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("CollectorFilterer", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Watershed) %>%
+  get_summary_stats("CollectorFilterer", type = "mean_se")
+
+#shredder
+lmer.sh= lme(Shredder~Watershed+Gap_location, random=~1|Stream,
+             data=EAB_Paired_FFG_Stand_RA,
+             method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.sh),col="darkgray")
+shapiro.test(residuals(lmer.sh))
+#W = 0.89095, p-value = 0.0001403, not normal
+EAB_Paired_FFG_Stand_RA$log10sh<-log10(EAB_Paired_FFG_Stand_RA$Shredder+1)
+lmer.log10sh= lme(log10sh~Watershed+Gap_location, random=~1|Stream,
+                  data=EAB_Paired_FFG_Stand_RA,
+                  method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.log10sh),col="darkgray")
+shapiro.test(residuals(lmer.log10sh))
+#W = 0.93607, p-value = 0.006413, not normal, try binomial
+glmer.sh<-glmer(Shredder~Watershed+Gap_location+1|Stream,family=binomial,
+                weights=Total_Macs,
+                data=EAB_Paired_FFG_Stand_RA)
+summary(glmer.sh)
+#fail to converge, so see if Stream is adding to model
+glm.sh<-glm(Shredder~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+            data=EAB_Paired_FFG_Stand_RA)
+#check assumptions
+hist(residuals(glm.sh),col="darkgray")
+shapiro.test(residuals(glm.sh))
+#W = 0.97255, p-value = 0.249, normal
+summary(glm.sh)
+#Intercept and kalamazoo significant
+EAB_Paired_FFG_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Shredder", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Shredder", type = "mean_se")
+
+#grazer
+lmer.g= lme(Grazer~Watershed+Gap_location, random=~1|Stream,
+             data=EAB_Paired_FFG_Stand_RA,
+             method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.g),col="darkgray")
+shapiro.test(residuals(lmer.g))
+#W = 0.71551, p-value = 6.471e-09, not normal
+EAB_Paired_FFG_Stand_RA$log10G<-log10(EAB_Paired_FFG_Stand_RA$Grazer+1)
+lmer.log10g= lme(log10G~Watershed+Gap_location, random=~1|Stream,
+            data=EAB_Paired_FFG_Stand_RA,
+            method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.log10g),col="darkgray")
+shapiro.test(residuals(lmer.log10g))
+#W = 0.7705, p-value = 8.63e-08, not normal, try binomial
+glmer.g<-glmer(Grazer~Watershed+Gap_location+1|Stream,family=binomial,
+                weights=Total_Macs,
+                data=EAB_Paired_FFG_Stand_RA)
+summary(glmer.g)
+#fail to converge, so see if Stream is adding to model
+glm.g<-glm(Grazer~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+            data=EAB_Paired_FFG_Stand_RA)
+#check assumptions
+hist(residuals(glm.g),col="darkgray")
+shapiro.test(residuals(glm.g))
+#W = 0.96821, p-value = 0.1606, normal
+summary(glm.g)
+#Gap significant
+EAB_Paired_FFG_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Grazer", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Grazer", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Gap_location) %>%
+  get_summary_stats("Grazer", type = "mean_se")
+
+#predator
+lmer.p= lme(Predator~Watershed+Gap_location, random=~1|Stream,
+            data=EAB_Paired_FFG_Stand_RA,
+            method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.p),col="darkgray")
+shapiro.test(residuals(lmer.p))
+#W = 0.69467, p-value = 2.638e-09, not normal
+EAB_Paired_FFG_Stand_RA$log10P<-log10(EAB_Paired_FFG_Stand_RA$Predator+1)
+lmer.log10p= lme(log10P~Watershed+Gap_location, random=~1|Stream,
+                 data=EAB_Paired_FFG_Stand_RA,
+                 method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.log10p),col="darkgray")
+shapiro.test(residuals(lmer.log10p))
+summary(lmer.log10p)
+#W = 0.75305, p-value = 3.65e-08, not normal, try binomial
+glmer.p<-glmer(Predator~Watershed+Gap_location+1|Stream,family=binomial,
+               weights=Total_Macs,
+               data=EAB_Paired_FFG_Stand_RA)
+summary(glmer.p)
+#fail to converge, so see if Stream is adding to model
+glm.p<-glm(Predator~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+           data=EAB_Paired_FFG_Stand_RA)
+#check assumptions
+hist(residuals(glm.p),col="darkgray")
+shapiro.test(residuals(glm.p))
+#W = 0.94763, p-value = 0.01963, not normal
+glm.log10p<-glm(log10P~Watershed+Gap_location,family=binomial,weights=Total_Macs,
+                data=EAB_Paired_FFG_Stand_RA)
+summary(glm.log10p)
+#check assumptions
+hist(residuals(glm.log10p),col="darkgray")
+shapiro.test(residuals(glm.log10p))
+#W = 0.9564, p-value = 0.04761, not normal
+skewness(residuals(glm.log10p))
+summary(glm.log10p)
+#intercept signifiant
+EAB_Paired_FFG_Stand %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Predator", type = "mean_se")
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Watershed) %>%
+  get_summary_stats("Predator", type = "mean_se")
+
+#Model total abundance
+lmer.tma= lme(Total_Macs~Watershed+Gap_location, random=~1|Stream,
+            data=EAB_Paired_FFG_Stand_RA,
+            method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.tma),col="darkgray")
+shapiro.test(residuals(lmer.tma))
+#W = 0.75244, p-value = 3.545e-08, not normal
+EAB_Paired_FFG_Stand_RA$log10Total_Macs<-log10(EAB_Paired_FFG_Stand_RA$Total_Macs+1)
+lmer.log10tma= lme(log10Total_Macs~Watershed+Gap_location, random=~1|Stream,
+              data=EAB_Paired_FFG_Stand_RA,
+              method="REML", na.action=na.omit)
+#check assumptions
+hist(residuals(lmer.log10tma),col="darkgray")
+shapiro.test(residuals(lmer.log10tma))
+#W = 0.96965, p-value = 0.1861, normal
+summary(lmer.log10tma)
+#intercept significant
+
