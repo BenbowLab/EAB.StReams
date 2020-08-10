@@ -2717,7 +2717,7 @@ adonis(as.dist(EAB_16S_uni_TL) ~ (Watershed+Gap)^2+Stream, data=EAB_16S_uni_env_
 #Visualize via nmds
 EAB_Paired_Mic_NMDS_TL<-metaMDS(as.dist(EAB_16S_uni_TL))
 
-#Stressplot macroinvertebrate Nmds
+#Stressplot Nmds
 stressplot(EAB_Paired_Mic_NMDS_TL)
 
 #NMDSplot for watershed
