@@ -53,6 +53,7 @@ library(data.table)
 library(gvlma)
 library(boxcoxmix)
 library(VennDiagram)
+library(psych)
 #Functions
 ## Summarizes data.
 ## Gives count, mean, standard deviation, standard error of the mean, and confidence 
@@ -242,8 +243,12 @@ source_col_vec<-c("#1f78b4","#b15928","#33a02c")
 ###################
 EAB_AqCWD<-read.csv("~/Documents/MSU/Research/Surveying/Stream_Woody_Debris_Modified_as_Costiganetal.csv", sep = ",", header = T )
 
+#subset so only greater than 7.6 in diameter
+EAB_AqCWD<-subset(EAB_AqCWD, Diameter>=7.6)
+
 #Calculate volume of each piece of wood
 EAB_AqCWD$V<-pi*((((EAB_AqCWD$Diameter/100)/2)^2)*(EAB_AqCWD$In_Stream_Length/100))
+range(EAB_AqCWD$V)
 
 #aggregate for count of wood in each reach
 EAB_AqCWD_count<-aggregate(V~Stream+Gap+Basket, data=EAB_AqCWD, FUN=length)
@@ -351,7 +356,7 @@ EAB_AqCWD_Paired$prop_ash_vol<-EAB_AqCWD_Paired$Ash_V_m3/EAB_AqCWD_Paired$CWD_V_
 #aggregate into stream as experimental unit
 EAB_AqCWD_Paired_ag<-aggregate(cbind(Aquatic_Transect_length,No_logs,Logjam_V_m3,No_logjam_CWD_pieces,
                                  CWD_V_m3,No_insitu,insitu_V_m3,No_logjams,No_Ash,Ash_V_m3)~Stream+
-                                 Watershed+Aquatic_Transect_width, data=EAB_AqCWD_Paired,
+                                 Watershed+Aquatic_Transect_width+Year_Gapformation+Gap_Area+Gap_Diameter, data=EAB_AqCWD_Paired,
                                FUN=sum)
 #Create densities and proportions
 
@@ -419,16 +424,135 @@ EAB_AqCWD_Paired_ag$prop_ash_pieces<-EAB_AqCWD_Paired_ag$No_Ash/EAB_AqCWD_Paired
 #proportion volume insitu
 EAB_AqCWD_Paired_ag$prop_ash_vol<-EAB_AqCWD_Paired_ag$Ash_V_m3/EAB_AqCWD_Paired_ag$CWD_V_m3
 
+####################
+#Reduce output CWD variables by correlation analysis
+###################
+#Check normality assumptions
+
+#Total CWD
+
+#Number of logs per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$No_logs_per_length)
+#W = 0.89675, p-value = 0.3069 normal
+
+#VolCWD per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$VolCWD_per_length)
+#W = 0.9322, p-value = 0.6047, normal
+
+#log jams
+
+#Number of log jams per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$No_logjams_per_length)
+#W = 0.86348, p-value = 0.2014, normal
+#Number of log jams per stream area
+shapiro.test(EAB_AqCWD_Paired_ag$No_logjams_per_area)
+#W = 0.81451, p-value = 0.07906, normal
+
+#Number of log jam pieces per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$No_logjam_pieces_per_length)
+#W = 0.94719, p-value = 0.7378, normal
+
+#VolCWD in log jams per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$VolCWDLJ_per_length)
+#W = 0.86728, p-value = 0.2107, normal
+
+#proportion pieces in logjams
+shapiro.test(EAB_AqCWD_Paired_ag$prop_logjam_pieces)
+#W = 0.92063, p-value = 0.4581, normal
+#proportion volume in logjams
+shapiro.test(EAB_AqCWD_Paired_ag$prop_logjam_vol)
+#W = 0.92333, p-value = 0.5539, normal
+
+#insitu
+
+#Number of insitu pieces per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$No_insitu_per_length)
+#W = 0.92252, p-value = 0.3194, normal
+
+#VolCWD in insitu per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$Vol_insitu_per_length)
+#W = 0.897, p-value = 0.3521, normal
+
+#proportion pieces insitu
+shapiro.test(EAB_AqCWD_Paired_ag$prop_insitu_pieces)
+#W = 0.90399, p-value = 0.1634, normal
+#proportion volume insitu
+shapiro.test(EAB_AqCWD_Paired_ag$prop_insitu_vol)
+#W = 0.87537, p-value = 0.266, normal
+EAB_AqCWD_Paired_ag %>%
+  get_summary_stats(prop_insitu_vol, type = "mean_se")
+
+#Ash
+
+#Number of ash pieces per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$No_ash_per_length)
+#W = 0.97721, p-value = 0.9369, normal
+#Number of ash pieces per stream area
+shapiro.test(EAB_AqCWD_Paired_ag$No_ash_per_area)
+#W = 0.91198, p-value = 0.4495, normal
+
+#VolCWD in ash per reach length
+shapiro.test(EAB_AqCWD_Paired_ag$Vol_ash_per_length)
+#W = 0.95043, p-value = 0.7438, normal
+#VolCWD in ash per stream area
+shapiro.test(EAB_AqCWD_Paired_ag$Vol_ash_per_area)
+#W = 0.97827, p-value = 0.9426, normal
+
+#proportion pieces ash
+shapiro.test(EAB_AqCWD_Paired_ag$prop_ash_pieces)
+#W = 0.96054, p-value = 0.8558, normal
+#proportion volume insitu
+shapiro.test(EAB_AqCWD_Paired_ag$prop_ash_vol)
+#W = 0.95822, p-value = 0.8061, normal
+
+#############################
+#assumption of normality met on all output variables
+#############################
+
+#Get summary stats on variables for correlation analysis
+AqCWDSum<-describeBy(EAB_AqCWD_Paired_ag[,17:40], EAB_AqCWD_Paired_ag$Year_Gapformation)
+write.csv(AqCWDSum$Clinton, "AqCWDSumCl.csv")
+write.csv(AqCWDSum$Grand, "AqCWDSumGr.csv")
+write.csv(AqCWDSum$Kalamazoo, "AqCWDSumKa.csv")
+
+
+#Run pearson correlation on all output variables to reduce variable number
+names(EAB_AqCWD_Paired_ag)
+AqCWDCor<-cor(EAB_AqCWD_Paired_ag[,17:40])
+write.csv(AqCWDCor,'AqCWDCor.csv')
+
+#exclude one variable at a time based on correlations |>0.6|
+#Also, eliminate all "per area" variables
+
+#prop ash pieces and no ash per length 0.87, delete prop ash pieces
+#prop logjam pieces and no ash per length -0.94, delete prop logjam pieces
+#no ash per length and vol insitu per length 0.86, delete no ash per length
+#vol insitu per length and prop insitu vol 0.85, delete vol insitu per length
+#no logjam pieces per length and prop logjam vol 0.98, delete no logjam pieces per length
+#vol ash per length and vol cwd per length 0.9, delete vol ash per length
+#prop logjam vol and volcwdlj per length 0.77, delete prop logjam vol
+#prop insitu pieces and no insitu per length 0.97, delete prop insitu pieces
+#no logs per length and vol cwd per length 0.81, delete vol cwd per length
+#no logjams per length and volcwdlj per length 0.69, delete vol cwd lj per length
+#no insitu per length and prop insitu vol 0.93, delete prop insitu vol
+
+#4 variables left: no logs per length, no logjams per length, no insitu per length
+#and prop ash vol
+
+#Use these variables as output
+
 ##############
 #Aquatic CWD watershed
 ###################
 
 #model this way: one way anova aq CWD ~ watershed
 
-#number of logs per length
+#No_logs_per_length
 #summarize data
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
+  get_summary_stats(No_logs_per_length, type = "mean_se")
+EAB_AqCWD_Paired_ag %>%
   get_summary_stats(No_logs_per_length, type = "mean_se")
 #Check assumptions
 #outliers
@@ -437,110 +561,28 @@ EAB_AqCWD_Paired_ag %>%
   identify_outliers(No_logs_per_length)
 #no outliers
 #build model
-lm.nologpm<-lm(No_logs_per_length ~ Watershed,data=EAB_AqCWD_Paired_ag)
+lm.No_logspm<-lm(No_logs_per_length ~ Watershed,data=EAB_AqCWD_Paired_ag)
 #qqplot
-ggqqplot(residuals(lm.nologpm))
+ggqqplot(residuals(lm.No_logspm))
 #all within gray bar
-shapiro_test(residuals(lm.nologpm))
-#p 0.799 normally distributed residuals
+shapiro_test(residuals(lm.No_logspm))
+#p 0.964 normally distributed residuals
 #sample size too low to see normality for each watershed
 ggqqplot(EAB_AqCWD_Paired_ag, "No_logs_per_length", facet.by = "Watershed")
 #all within gray bar
-plot(lm.nologpm, 1)
+plot(lm.No_logspm, 1)
 #no relationship
 #all assumptions  met
-nologpm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logs_per_length~Watershed)
-nologpm.aov
-#not significant
-
-#number of logs per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logs_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_logs_per_area)
-#no outliers
-#build model
-lm.nologpha<-lm(No_logs_per_area ~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.nologpha))
-#all within gray bar
-shapiro_test(residuals(lm.nologpha))
-#p 0.231 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_logs_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.nologpha, 1)
-#no relationship
-#all assumptions  met
-nologpha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logs_per_area~Watershed)
-nologpha.aov
-#not significant
-
-#volume CWD per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWD_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(VolCWD_per_length)
-#no outliers
-#build model
-lm.volcwdpm<-lm(VolCWD_per_length ~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volcwdpm))
-#all within gray bar
-shapiro_test(residuals(lm.volcwdpm))
-#p 0.933 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "VolCWD_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volcwdpm, 1)
-#no relationship
-#all assumptions  met
-volcwdpm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(VolCWD_per_length~Watershed)
-volcwdpm.aov
-#not significant
-
-#volume CWD per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWD_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(VolCWD_per_area)
-#no outliers
-#build model
-lm.volcwdpha<-lm(VolCWD_per_area ~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volcwdpha))
-#all within gray bar
-shapiro_test(residuals(lm.volcwdpha))
-#p 0.948 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "VolCWD_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volcwdpha, 1)
-#no relationship
-#all assumptions  met
-volcwdpha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(VolCWD_per_area~Watershed)
-volcwdpha.aov
+No_logspm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logs_per_length~Watershed)
+No_logspm.aov
 #not significant
 
 #number of log jams per length
 #summarize data
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
+  get_summary_stats(No_logjams_per_length, type = "mean_se")
+EAB_AqCWD_Paired_ag %>%
   get_summary_stats(No_logjams_per_length, type = "mean_se")
 #Check assumptions
 #outliers
@@ -554,7 +596,7 @@ lm.NoLJpm<-lm(No_logjams_per_length ~ Watershed,data=EAB_AqCWD_Paired_ag)
 ggqqplot(residuals(lm.NoLJpm))
 #all within gray bar
 shapiro_test(residuals(lm.NoLJpm))
-#p 1.00 normally distributed residuals
+#p 0.999 normally distributed residuals
 #sample size too low to see normality for each watershed
 ggqqplot(EAB_AqCWD_Paired_ag, "No_logjams_per_length", facet.by = "Watershed")
 #all within gray bar
@@ -563,208 +605,14 @@ plot(lm.NoLJpm, 1)
 #all assumptions  met
 NoLJpm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logjams_per_length~Watershed)
 NoLJpm.aov
-#not significant
+#not significant: F=0.696 p=0.565 ges=0.317
 
-#number of log jams per area
+#No insitu per length
 #summarize data
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
-  get_summary_stats(No_logjams_per_area, type = "mean_se")
-#Check assumptions
-#outliers
+  get_summary_stats(No_insitu_per_length, type = "mean_se")
 EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_logjams_per_area)
-#no outliers
-#build model
-lm.NoLJpha<-lm(No_logjams_per_area ~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.NoLJpha))
-#points at end just outside of gray bar
-shapiro_test(residuals(lm.NoLJpha))
-#p 0.747 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_logjams_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.NoLJpha, 1)
-#no relationship
-#all assumptions  met
-NoLJpha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logjams_per_area~Watershed)
-NoLJpha.aov
-#not significant
-
-#number of log jam pieces per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logjam_pieces_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_logjam_pieces_per_length)
-#no outliers
-#build model
-lm.NoLJppm<-lm(No_logjam_pieces_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.NoLJppm))
-#points all inside gray bar
-shapiro_test(residuals(lm.NoLJppm))
-#p 0.968 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_logjam_pieces_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.NoLJppm, 1)
-#no relationship
-#all assumptions  met
-NoLJppm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logjam_pieces_per_length~Watershed)
-NoLJppm.aov
-#not significant
-
-#number of log jam pieces per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logjam_pieces_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_logjam_pieces_per_area)
-#no outliers
-#build model
-lm.NoLJppha<-lm(No_logjam_pieces_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.NoLJppha))
-#points all inside gray bar
-shapiro_test(residuals(lm.NoLJppha))
-#p 0.717 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_logjam_pieces_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.NoLJppha, 1)
-#no relationship
-#all assumptions  met
-NoLJppha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_logjam_pieces_per_area~Watershed)
-NoLJppha.aov
-#not significant
-
-#prop log jam pieces
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(prop_logjam_pieces, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(prop_logjam_pieces)
-#no outliers
-#build model
-lm.propLJp<-lm(prop_logjam_pieces~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.propLJp))
-#points all inside gray bar
-shapiro_test(residuals(lm.propLJp))
-#p 0.634 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "prop_logjam_pieces", facet.by = "Watershed")
-#all within gray bar
-plot(lm.propLJp, 1)
-#no relationship
-#all assumptions  met
-propLJp.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_logjam_pieces~Watershed)
-propLJp.aov
-#not significant
-
-#log jam volume per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWDLJ_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(VolCWDLJ_per_length)
-#no outliers
-#build model
-lm.volLJpm<-lm(VolCWDLJ_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volLJpm))
-#points all inside gray bar
-shapiro_test(residuals(lm.volLJpm))
-#p 0.103 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "VolCWDLJ_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volLJpm, 1)
-#no relationship
-#all assumptions  met
-volLJpm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(VolCWDLJ_per_length~Watershed)
-volLJpm.aov
-#not significant
-
-#log jam volume per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWDLJ_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(VolCWDLJ_per_area)
-#no outliers
-#build model
-lm.volLJpha<-lm(VolCWDLJ_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volLJpha))
-#points all inside gray bar
-shapiro_test(residuals(lm.volLJpha))
-#p 0.445 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "VolCWDLJ_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volLJpha, 1)
-#no relationship
-#all assumptions  met
-volLJpha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(VolCWDLJ_per_area~Watershed)
-volLJpha.aov
-#not significant
-
-#prop log jam volume
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(prop_logjam_vol, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(prop_logjam_vol)
-#no outliers
-#build model
-lm.propLJvol<-lm(prop_logjam_vol~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.propLJvol))
-#points all inside gray bar
-shapiro_test(residuals(lm.propLJvol))
-#p 0.176 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "prop_logjam_vol", facet.by = "Watershed")
-#all within gray bar
-plot(lm.propLJvol, 1)
-#no relationship
-#all assumptions  met
-propLJvol.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_logjam_vol~Watershed)
-propLJvol.aov
-#not significant
-
-#number of insitu per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
   get_summary_stats(No_insitu_per_length, type = "mean_se")
 #Check assumptions
 #outliers
@@ -773,325 +621,28 @@ EAB_AqCWD_Paired_ag %>%
   identify_outliers(No_insitu_per_length)
 #no outliers
 #build model
-lm.noinsitupm<-lm(No_insitu_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
+lm.No_insitupm<-lm(No_insitu_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
 #qqplot
-ggqqplot(residuals(lm.noinsitupm))
+ggqqplot(residuals(lm.No_insitupm))
 #points all inside gray bar
-shapiro_test(residuals(lm.noinsitupm))
-#p 0.53 normally distributed residuals
+shapiro_test(residuals(lm.No_insitupm))
+#p 0.923 normally distributed residuals
 #sample size too low to see normality for each watershed
 ggqqplot(EAB_AqCWD_Paired_ag, "No_insitu_per_length", facet.by = "Watershed")
 #all within gray bar
-plot(lm.noinsitupm, 1)
+plot(lm.No_insitupm, 1)
 #no relationship
 #all assumptions  met
-noinsitupm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_insitu_per_length~Watershed)
-noinsitupm.aov
-#not significant
+No_insitupm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_insitu_per_length~Watershed)
+No_insitupm.aov
+#not significant: F=0.001, p=0.999, ges=0.000897
 
-#number of insitu per area
+#prop ash volume
 #summarize data
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
-  get_summary_stats(No_insitu_per_area, type = "mean_se")
-#Check assumptions
-#outliers
+  get_summary_stats(prop_ash_vol, type = "mean_se")
 EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_insitu_per_area)
-#no outliers
-#build model
-lm.noinsitupha<-lm(No_insitu_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.noinsitupha))
-#points all inside gray bar
-shapiro_test(residuals(lm.noinsitupha))
-#p 0.244 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_insitu_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.noinsitupha, 1)
-#no relationship
-#all assumptions  met
-noinsitupha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_insitu_per_area~Watershed)
-noinsitupha.aov
-#not significant
-
-#prop insitu pieces
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(prop_insitu_pieces, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(prop_insitu_pieces)
-#no outliers
-#build model
-lm.propinsitup<-lm(prop_insitu_pieces~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.propinsitup))
-#points all inside gray bar
-shapiro_test(residuals(lm.propinsitup))
-#p 0.452 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "prop_insitu_pieces", facet.by = "Watershed")
-#all within gray bar
-plot(lm.propinsitup, 1)
-#no relationship
-#all assumptions  met
-propinsitup.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_insitu_pieces~Watershed)
-propinsitup.aov
-#not significant
-
-#volume insitu per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_insitu_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(Vol_insitu_per_length)
-#no outliers
-#build model
-lm.volinsitupm<-lm(Vol_insitu_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volinsitupm))
-#points all inside gray bar
-shapiro_test(residuals(lm.volinsitupm))
-#p 0.917 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "Vol_insitu_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volinsitupm, 1)
-#no relationship
-#all assumptions  met
-volinsitupm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(Vol_insitu_per_length~Watershed)
-volinsitupm.aov
-#not significant
-
-#volume insitu per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_insitu_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(Vol_insitu_per_area)
-#no outliers
-#build model
-lm.volinsitupha<-lm(Vol_insitu_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volinsitupha))
-#points all inside gray bar
-shapiro_test(residuals(lm.volinsitupha))
-#p 0.714 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "Vol_insitu_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volinsitupha, 1)
-#no relationship
-#all assumptions  met
-volinsitupha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(Vol_insitu_per_area~Watershed)
-volinsitupha.aov
-#not significant
-
-#prop volume insitu
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(prop_insitu_vol, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(prop_insitu_vol)
-#no outliers
-#build model
-lm.propinsituv<-lm(prop_insitu_vol~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.propinsituv))
-#points all inside gray bar
-shapiro_test(residuals(lm.propinsituv))
-#p 0.393 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "prop_insitu_vol", facet.by = "Watershed")
-#all within gray bar
-plot(lm.propinsituv, 1)
-#no relationship
-#all assumptions  met
-propinsituv.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_insitu_vol~Watershed)
-propinsituv.aov
-#not significant
-
-#number of ash per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_ash_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_ash_per_length)
-#no outliers
-#build model
-lm.noapm<-lm(No_ash_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.noapm))
-#points all inside gray bar
-shapiro_test(residuals(lm.noapm))
-#p 0.390 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_ash_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.noapm, 1)
-#no relationship
-#all assumptions  met
-noapm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_ash_per_length~Watershed)
-noapm.aov
-#not significant
-
-#number of ash per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_ash_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(No_ash_per_area)
-#no outliers
-#build model
-lm.noapha<-lm(No_ash_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.noapha))
-#points all inside gray bar
-shapiro_test(residuals(lm.noapha))
-#p 0.647 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "No_ash_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.noapha, 1)
-#no relationship
-#all assumptions  met
-noapha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(No_ash_per_area~Watershed)
-noapha.aov
-#not significant
-
-#prop ash pieces
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(prop_ash_pieces, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(prop_ash_pieces)
-#no outliers
-#build model
-lm.propap<-lm(prop_ash_pieces~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.propap))
-#points all inside gray bar
-shapiro_test(residuals(lm.propap))
-#p 0.411 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "prop_ash_pieces", facet.by = "Watershed")
-#all within gray bar
-plot(lm.propap, 1)
-#no relationship
-#all assumptions  met
-propap.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_ash_pieces~Watershed)
-propap.aov
-#watershed significant, tukey's posthoc test
-propap.ph<- EAB_AqCWD_Paired_ag%>% tukey_hsd(prop_ash_pieces~Watershed)
-propap.ph
-#clinton signficantly greater than grand
-#visualize
-propap.ph<-propap.ph%>% add_xy_position(x = "Watershed")
-ggplot(EAB_AqCWD_Paired_ag, aes(x=Watershed, y=prop_ash_pieces)) +
-  geom_point() +
-  ylab("Ash CWD Pieces Relative Abundance")+
-  xlab("Watershed") +
-  stat_pvalue_manual(propap.ph, hide.ns = TRUE) +
-  labs(
-    subtitle = get_test_label(propap.aov, detailed = TRUE),
-    caption = get_pwc_label(propap.ph)
-  )+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        plot.subtitle = element_text(size = 14),plot.caption=element_text(size=14),
-        legend.position = "none")
-
-#volume ash per length
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_ash_per_length, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(Vol_ash_per_length)
-#no outliers
-#build model
-lm.volapm<-lm(Vol_ash_per_length~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volapm))
-#points all inside gray bar
-shapiro_test(residuals(lm.volapm))
-#p 0.526 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "Vol_ash_per_length", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volapm, 1)
-#no relationship
-#all assumptions  met
-volapm.aov <- EAB_AqCWD_Paired_ag%>% anova_test(Vol_ash_per_length~Watershed)
-volapm.aov
-#nothing significant
-
-#volume ash per area
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_ash_per_area, type = "mean_se")
-#Check assumptions
-#outliers
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  identify_outliers(Vol_ash_per_area)
-#no outliers
-#build model
-lm.volapha<-lm(Vol_ash_per_area~ Watershed,data=EAB_AqCWD_Paired_ag)
-#qqplot
-ggqqplot(residuals(lm.volapha))
-#points all inside gray bar
-shapiro_test(residuals(lm.volapha))
-#p 0.920 normally distributed residuals
-#sample size too low to see normality for each watershed
-ggqqplot(EAB_AqCWD_Paired_ag, "Vol_ash_per_area", facet.by = "Watershed")
-#all within gray bar
-plot(lm.volapha, 1)
-#no relationship
-#all assumptions  met
-volapha.aov <- EAB_AqCWD_Paired_ag%>% anova_test(Vol_ash_per_area~Watershed)
-volapha.aov
-#nothing significant
-
-#prop volume ash
-#summarize data
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
   get_summary_stats(prop_ash_vol, type = "mean_se")
 #Check assumptions
 #outliers
@@ -1100,98 +651,79 @@ EAB_AqCWD_Paired_ag %>%
   identify_outliers(prop_ash_vol)
 #no outliers
 #build model
-lm.propav<-lm(prop_ash_vol~ Watershed,data=EAB_AqCWD_Paired_ag)
+lm.propashv<-lm(prop_ash_vol~ Watershed,data=EAB_AqCWD_Paired_ag)
 #qqplot
-ggqqplot(residuals(lm.propav))
+ggqqplot(residuals(lm.propashv))
 #points all inside gray bar
-shapiro_test(residuals(lm.propav))
-#p 0.131 normally distributed residuals
+shapiro_test(residuals(lm.propashv))
+#p 0.849 normally distributed residuals
 #sample size too low to see normality for each watershed
 ggqqplot(EAB_AqCWD_Paired_ag, "prop_ash_vol", facet.by = "Watershed")
 #all within gray bar
-plot(lm.propav, 1)
+plot(lm.propashv, 1)
 #no relationship
 #all assumptions  met
-propav.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_ash_vol~Watershed)
-propav.aov
-#nothing significant
+propashv.aov <- EAB_AqCWD_Paired_ag%>% anova_test(prop_ash_vol~Watershed)
+propashv.aov
+#not significant: F=2.214 p=0.257, ges=0.596
 
 ##########################
 #Summary Aquatic CWD by watershed
-#nothing significant except
-#the proportion of pieces of CWD that were ash was greater in clinton compared to grand
+#nothing significant
 ##############################
 
 #Get summary stats for dissertation
-#nubmer of logs per area
-EAB_AqCWD_Paired_ag$No_logs_per_ha<-1000*EAB_AqCWD_Paired_ag$No_logs_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logs_per_ha, type = "mean_se")
-#Volume CWD per area
-EAB_AqCWD_Paired_ag$VolCWD_per_ha<-1000*EAB_AqCWD_Paired_ag$VolCWD_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWD_per_ha, type = "mean_se")
-#no logjams per area
-EAB_AqCWD_Paired_ag$No_logjams_per_ha<-1000*EAB_AqCWD_Paired_ag$No_logjams_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logjams_per_ha, type = "mean_se")
-#no logjam pieces per area
-EAB_AqCWD_Paired_ag$No_logjam_pieces_per_ha<-1000*EAB_AqCWD_Paired_ag$No_logjam_pieces_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_logjam_pieces_per_ha, type = "mean_se")
 #logjam pieces relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_logjam_pieces, type = "mean_se")
-#logjam volume per stream area
-EAB_AqCWD_Paired_ag$VolCWDLJ_per_ha<-1000*EAB_AqCWD_Paired_ag$VolCWDLJ_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(VolCWDLJ_per_ha, type = "mean_se")
 #logjam volume relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_logjam_vol, type = "mean_se")
-#no insitu per area
-EAB_AqCWD_Paired_ag$No_insitu_per_ha<-1000*EAB_AqCWD_Paired_ag$No_insitu_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_insitu_per_ha, type = "mean_se")
 #insitu pieces relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_insitu_pieces, type = "mean_se")
-#insitu volume per stream area
-EAB_AqCWD_Paired_ag$Vol_insitu_per_ha<-1000*EAB_AqCWD_Paired_ag$Vol_insitu_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_insitu_per_ha, type = "mean_se")
 #insitu volume relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_insitu_vol, type = "mean_se")
-#no ash per area
-EAB_AqCWD_Paired_ag$No_ash_per_ha<-1000*EAB_AqCWD_Paired_ag$No_ash_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(No_ash_per_ha, type = "mean_se")
 #ash pieces relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_ash_pieces, type = "mean_se")
-#ash volume per stream area
-EAB_AqCWD_Paired_ag$Vol_ash_per_ha<-1000*EAB_AqCWD_Paired_ag$Vol_ash_per_area
-EAB_AqCWD_Paired_ag %>%
-  group_by(Watershed) %>%
-  get_summary_stats(Vol_ash_per_ha, type = "mean_se")
 #ash volume relative abundance
 EAB_AqCWD_Paired_ag %>%
   group_by(Watershed) %>%
   get_summary_stats(prop_ash_vol, type = "mean_se")
+
+#Try again using year since gap formation as predictor in linear model
+
+#Change year of gap formation to years since gap formation
+EAB_AqCWD_Paired_ag$YearSinceGF<-2016-EAB_AqCWD_Paired_ag$Year_Gapformation
+
+#merge year since EAB invasion with 
+#no logs per length
+No_logspm.lm <- lm(No_logs_per_length~YearSinceGF, data=EAB_AqCWD_Paired_ag)
+summary(No_logspm.lm)
+#not significant p=0.269
+
+#number of log jams per length
+No_ljpm.lm <- lm(No_logjams_per_length~YearSinceGF, data=EAB_AqCWD_Paired_ag)
+summary(No_ljpm.lm)
+#not significant p=0.41
+
+#No insitu per length
+No_ipm.lm <- lm(No_insitu_per_length~YearSinceGF, data=EAB_AqCWD_Paired_ag)
+summary(No_ipm.lm)
+#not significant p=0.43
+
+#prop ash volume
+PA.lm <- lm(prop_ash_vol~YearSinceGF, data=EAB_AqCWD_Paired_ag)
+summary(PA.lm)
+#not significant p=0.39
+
 ############################
 #Calculate terrestrial forest ecology metrics: standing
 ###########################
@@ -1301,16 +833,24 @@ EAB_Terr_Paired_dead$prop_Ash_CWD_vol<-EAB_Terr_Paired_dead$VolCWD_m3perha_Ash/E
 EAB_Terr_Paired_Gap<-subset(EAB_Terr_Paired_dead, Gap_location=="Gap")
 #delete variables with 0 values
 EAB_Terr_Paired_Gap<-EAB_Terr_Paired_Gap[, colSums(EAB_Terr_Paired_Gap != 0) > 0]
+#Calculate summary stats for manuscript
+EAB_Terr_Paired_Gap %>%  get_summary_stats(Total_CWD_Vol_m3pha, type = "mean_se")
+EAB_Terr_Paired_Gap %>%  get_summary_stats(Total_Snag_BA_m2pha, type = "mean_se")
+
+#Create new dataset that subsets just forest
+EAB_Terr_Paired_F<-subset(EAB_Terr_Paired_dead, Gap_location!="Gap")
+#delete variables with 0 values
+EAB_Terr_Paired_F<-EAB_Terr_Paired_F[, colSums(EAB_Terr_Paired_F != 0) > 0]
+#Calculate summary stats for manuscript
+EAB_Terr_Paired_F %>%  get_summary_stats(Total_CWD_Vol_m3pha, type = "mean_se")
+EAB_Terr_Paired_F %>%  get_summary_stats(Total_Snag_BA_m2pha, type = "mean_se")
 
 #########################
-#CWD correlation analysis with terrestrial datasets
+#CWD linear regression with terrestrial datasets
 #######################
 
 #Merge with terrestrial dataset
 EAB_CWD_Paired<-merge(EAB_AqCWD_Paired_ag, EAB_Terr_Paired_Gap, by="Stream")
-
-#look for correltaions between aquatic CWD, terrestrial cwd and terrestrial snag variables
-#use pearson correlations if assumptions met
 
 #Test normality for terrestrial variables used:
 #Number of terrestrial cwd logs per ha
@@ -1320,11 +860,7 @@ skewness(EAB_CWD_Paired$Total_CWD_Nopha)
 #right skewed, log transform
 EAB_CWD_Paired$log10Total_CWD_Nopha<-log10(EAB_CWD_Paired$Total_CWD_Nopha+1)
 shapiro.test(EAB_CWD_Paired$log10Total_CWD_Nopha)
-#W = 0.79085, p-value = 0.04855, not normal but better, square root transform
-EAB_CWD_Paired$sqrtTotal_CWD_Nopha<-sqrt(EAB_CWD_Paired$Total_CWD_Nopha+1)
-shapiro.test(EAB_CWD_Paired$sqrtTotal_CWD_Nopha)
-#W = 0.78567, p-value = 0.0435, not normal
-#use nonparametric test like spearman correlation
+#W = 0.88412, p-value = 0.288, normal, use log10 transformation
 
 #number of snags per ha
 shapiro.test(EAB_CWD_Paired$Total_Snag_Nopha)
@@ -1341,7 +877,7 @@ EAB_CWD_Paired$log10Total_CWD_Vol_m3pha<-log10(EAB_CWD_Paired$Total_CWD_Vol_m3ph
 shapiro.test(EAB_CWD_Paired$log10Total_CWD_Vol_m3pha)
 #W = 0.83712, p-value = 0.1234, normal
 ggqqplot(EAB_CWD_Paired$log10Total_CWD_Vol_m3pha)
-#all within gray bar - normally distributed
+#all within gray bar - normally distributed, use log10 transformation
 
 #volume snags per ha
 shapiro.test(EAB_CWD_Paired$Total_Snag_BA_m2pha)
@@ -1349,535 +885,60 @@ shapiro.test(EAB_CWD_Paired$Total_Snag_BA_m2pha)
 ggqqplot(EAB_CWD_Paired$Total_Snag_BA_m2pha)
 #all within gray bar - normally distributed
 
-#no ash cwd per ha
-shapiro.test(EAB_CWD_Paired$NoCWDperha_Ash)
-#W = 0.67658, p-value = 0.003469, not normal
-skewness(EAB_CWD_Paired$NoCWDperha_Ash)
-#0.5371711, log transform
-EAB_CWD_Paired$log10NoCWDperha_Ash<-log10(EAB_CWD_Paired$NoCWDperha_Ash+1)
-shapiro.test(EAB_CWD_Paired$log10NoCWDperha_Ash)
-#W = 0.74478, p-value = 0.0177, still not normal, so use non-parametric test
-
-#no ash snag per ha
-shapiro.test(EAB_CWD_Paired$Noperha_Ash_Snag)
-#W = 0.91384, p-value = 0.4621 normally distributed
-
-#prop ash cwd pieces
-shapiro.test(EAB_CWD_Paired$prop_Ash_CWD_no)
-#W = 0.9758, p-value = 0.9289, normal
-
-#prop ash snag no
-shapiro.test(EAB_CWD_Paired$prop_Ash_snag_no)
-#W = 0.81323, p-value = 0.07704, normal
-
-#vol ash cwd per ha
-shapiro.test(EAB_CWD_Paired$VolCWD_m3perha_Ash)
-#W = 0.71615, p-value = 0.009105, not normal
-skewness(EAB_CWD_Paired$VolCWD_m3perha_Ash)
-#positive, so log transform
-EAB_CWD_Paired$log10VolCWD_m3perha_Ash<-log10(EAB_CWD_Paired$VolCWD_m3perha_Ash+1)
-shapiro.test(EAB_CWD_Paired$log10VolCWD_m3perha_Ash)
-#W = 0.88808, p-value = 0.3083, normal so use this transformation
-
-#BA ash snag per ha
-shapiro.test(EAB_CWD_Paired$BAperha_Ash_Snag)
-#W = 0.78571, p-value = 0.04355, not normal
-skewness(EAB_CWD_Paired$BAperha_Ash_Snag)
-#right, so log transform
-EAB_CWD_Paired$log10BAperha_Ash_Snag<-log10(EAB_CWD_Paired$BAperha_Ash_Snag+1)
-shapiro.test(EAB_CWD_Paired$log10BAperha_Ash_Snag)
-#W = 0.84313, p-value = 0.1384, normally distributed
-
-#prop ash cwd vol
-shapiro.test(EAB_CWD_Paired$prop_Ash_CWD_vol)
-#W = 0.83729, p-value = 0.1238, normal
-
-#prop ash snag vol
-shapiro.test(EAB_CWD_Paired$prop_Ash_snag_BA)
-#W = 0.96623, p-value = 0.8662, normal
-
 ###################
-#correlation tests
-#Number of logs per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logs_per_length)
-#W = 0.89675, p-value = 0.3551, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logs_per_length)
-#one point slightly higher than gray bar
-#CWD - not normal
-cor.nolpm.nocwdpha<- cor.test(EAB_CWD_Paired$No_logs_per_length, EAB_CWD_Paired$Total_CWD_Nopha, 
-                method = "spearman")
-cor.nolpm.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.nolpm.nospha<-cor.test(EAB_CWD_Paired$No_logs_per_length, EAB_CWD_Paired$Total_Snag_Nopha,
-                           method="pearson")
-cor.nolpm.nospha
-#not significant
+#linear regression
 
-#Number of logs per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logs_per_area)
-#W = 0.8761, p-value = 0.2516, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logs_per_area)
-#all points within gray bar
-#CWD - not normal
-cor.nolpha.nocwdpha<- cor.test(EAB_CWD_Paired$No_logs_per_area, EAB_CWD_Paired$Total_CWD_Nopha, 
-                             method = "spearman")
-cor.nolpha.nocwdpha
+#noCWD per stream length - CWD use log transformation
+nCWDpl.nCWD.lm<-lm(No_logs_per_length~log10Total_CWD_Nopha, data=EAB_CWD_Paired)
+summary(nCWDpl.nCWD.lm)
 #not significant
-#snag - normal so use pearson
-cor.nolpha.nospha<-cor.test(EAB_CWD_Paired$No_logs_per_area, EAB_CWD_Paired$Total_Snag_Nopha,
-                           method="pearson")
-cor.nolpha.nospha
-#significant positive
-#Visualize
-#convert to pieces per ha
-EAB_CWD_Paired$No_logs_per_ha<-EAB_CWD_Paired$No_logs_per_area/0.0001
-ggplot(EAB_CWD_Paired, aes(y=No_logs_per_ha, x=Total_Snag_Nopha)) +
-  geom_point(size=3) +
-  xlab("Snag Frequency (Total Number per ha)")+
-  ylab("Aquatic CWD Frequency (Total Number per ha)")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-
-#Volume CWD per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$VolCWD_per_length)
-#W = 0.9322, p-value = 0.5972, normally distributed
-ggqqplot(EAB_CWD_Paired$VolCWD_per_length)
-#all points within gray bar
-#CWD - use log transformation
-cor.volCWDpm.volcwdpha<- cor.test(EAB_CWD_Paired$VolCWD_per_length,
-                               EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,method = "pearson")
-cor.volCWDpm.volcwdpha
-#not significant
-#snag - normal so use pearson
-cor.volCWDpm.volspha<-cor.test(EAB_CWD_Paired$VolCWD_per_length,EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                            method="pearson")
-cor.volCWDpm.volspha
+#snag - normal
+nCWDpl.ns.lm<-lm(No_logs_per_length~Total_Snag_Nopha, data=EAB_CWD_Paired)
+summary(nCWDpl.ns.lm)
 #not significant
 
 #Number of log jams per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logjams_per_length)
-#W = 0.86348, p-value = 0.2014, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logjams_per_length)
-#all points within gray bar
-#CWD - not normal
-cor.noLJpm.nocwdpha<- cor.test(EAB_CWD_Paired$No_logjams_per_length,
-                                  EAB_CWD_Paired$Total_CWD_Nopha,method = "spearman")
-cor.noLJpm.nocwdpha
-#significant negative
-#Visualize
-ggplot(EAB_CWD_Paired, aes(x=No_logjams_per_length, y=Total_CWD_Nopha)) +
-  geom_point(size=3) +
-  geom_smooth(method=lm, color="black", se=FALSE) +
-  ylab("Riparian CWD Density (Total Number per ha)")+
-  xlab("Logjam Frequency (Total Number per m)")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-#snag - normal so use pearson
-cor.noLJpm.nospha<-cor.test(EAB_CWD_Paired$No_logjams_per_length,EAB_CWD_Paired$Total_Snag_Nopha,
-                               method="pearson")
-cor.noLJpm.nospha
+#CWD - not normal,
+nljpl.nCWD.lm<-lm(No_logjams_per_length~log10Total_CWD_Nopha, data=EAB_CWD_Paired)
+summary(nljpl.nCWD.lm)
+#not significant
+#snag - normal Total_Snag_Nopha
+nljpl.ns.lm<-lm(No_logjams_per_length~Total_Snag_Nopha, data=EAB_CWD_Paired)
+summary(nljpl.ns.lm)
 #not significant
 
-#Number of log jams per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logjams_per_area)
-#W = 0.81451, p-value = 0.07906, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logjams_per_area)
-#one point slightly above gray area
-#CWD - not normal
-cor.noLJpha.nocwdpha<- cor.test(EAB_CWD_Paired$No_logjams_per_area,
-                               EAB_CWD_Paired$Total_CWD_Nopha,method = "spearman")
-cor.noLJpha.nocwdpha
-#significant negative
-#Visualize
-#covert logjams per m to logjams per ha
-EAB_CWD_Paired$No_logjams_per_ha<-1000*EAB_CWD_Paired$No_logjams_per_area
-ggplot(EAB_CWD_Paired, aes(x=No_logjams_per_ha, y=Total_CWD_Nopha)) +
-  geom_point(size=3) +
-  geom_smooth(method=lm, color="black", se=FALSE) +
-  ylab("Riparian CWD Density (Total Number per ha)")+
-  xlab("Logjam Density (Total Number per ha)")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-#snag - normal so use pearson
-cor.noLJpha.nospha<-cor.test(EAB_CWD_Paired$No_logjams_per_area,EAB_CWD_Paired$Total_Snag_Nopha,
-                            method="pearson")
-cor.noLJpha.nospha
+#number pieces insitu
+nipl.nCWD.lm<-lm(No_insitu_per_length~log10Total_CWD_Nopha, data=EAB_CWD_Paired)
+summary(nipl.nCWD.lm)
 #not significant
-
-#Number of log jam pieces per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logjam_pieces_per_length)
-#W = 0.94719, p-value = 0.7175, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logjam_pieces_per_length)
-#all points within gray area
-#CWD - not normal
-cor.noLJppm.nocwdpha<- cor.test(EAB_CWD_Paired$No_logjam_pieces_per_length,
-                                EAB_CWD_Paired$Total_CWD_Nopha,method = "spearman")
-cor.noLJppm.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.noLJppm.nospha<-cor.test(EAB_CWD_Paired$No_logjam_pieces_per_length,EAB_CWD_Paired$Total_Snag_Nopha,
-                             method="pearson")
-cor.noLJppm.nospha
-#significant negative
-#Visualize
-ggplot(EAB_CWD_Paired, aes(x=No_logjam_pieces_per_length, y=Total_Snag_Nopha)) +
-  geom_point(size=3) +
-  geom_smooth(method=lm, color="black", se=FALSE) +
-  ylab("Snag Density (Total Number per ha)")+
-  xlab("Logjam CWD Pieces Frequency (Total Number per m)")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-
-#Number of log jam pieces per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$No_logjam_pieces_per_area)
-#W = 0.96328, p-value = 0.8446, normally distributed
-ggqqplot(EAB_CWD_Paired$No_logjam_pieces_per_area)
-#all points within gray area
-#CWD - not normal
-cor.noLJppha.nocwdpha<- cor.test(EAB_CWD_Paired$No_logjam_pieces_per_area,
-                                EAB_CWD_Paired$Total_CWD_Nopha,method = "spearman")
-cor.noLJppha.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.noLJppha.nospha<-cor.test(EAB_CWD_Paired$No_logjam_pieces_per_area,EAB_CWD_Paired$Total_Snag_Nopha,
-                             method="pearson")
-cor.noLJppha.nospha
-#not significant
-
-#proportion log jam pieces
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_logjam_pieces)
-#W = 0.92063, p-value = 0.5099, normally distributed
-ggqqplot(EAB_CWD_Paired$prop_logjam_pieces)
-#all points within gray area
-#CWD - not normal
-cor.propLJp.nocwdpha<- cor.test(EAB_CWD_Paired$prop_logjam_pieces,
-                                 EAB_CWD_Paired$Total_CWD_Nopha,method = "spearman")
-cor.propLJp.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.propLJp.nospha<-cor.test(EAB_CWD_Paired$prop_logjam_pieces,EAB_CWD_Paired$Total_Snag_Nopha,
-                              method="pearson")
-cor.propLJp.nospha
-#significant negative
-#Visualize
-ggplot(EAB_CWD_Paired, aes(x=prop_logjam_pieces, y=Total_Snag_Nopha)) +
-  geom_point(size=3) +
-  geom_smooth(method=lm, color="black", se=FALSE) +
-  ylab("Snag Density (Total Number per ha)")+
-  xlab("Logjam CWD Pieces Relative Abundance")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-
-#log jam volume per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$VolCWDLJ_per_length)
-#W = 0.86728, p-value = 0.2156, normally distributed
-#CWD - log transformation
-cor.volLJpm.volcwdpha<- cor.test(EAB_CWD_Paired$VolCWDLJ_per_length,
-                                EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,method = "pearson")
-cor.volLJpm.volcwdpha
-#not significant
-#snag - normal so use pearson
-cor.volLJpm.baspha<-cor.test(EAB_CWD_Paired$VolCWDLJ_per_length,EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                             method="pearson")
-cor.volLJpm.baspha
-#not significant
-
-#log jam volume per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$VolCWDLJ_per_area)
-#W = 0.87469, p-value = 0.2455, normally distributed
-#CWD - log transformation
-cor.volLJpha.volcwdpha<- cor.test(EAB_CWD_Paired$VolCWDLJ_per_area,
-                                 EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,method = "pearson")
-cor.volLJpha.volcwdpha
-#not significant
-#snag - normal so use pearson
-cor.volLJpha.baspha<-cor.test(EAB_CWD_Paired$VolCWDLJ_per_area,EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                             method="pearson")
-cor.volLJpha.baspha
-#not significant
-
-#prop log jam volue
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_logjam_vol)
-#W = 0.92333, p-value = 0.5297, normally distributed
-#CWD - log transformation
-cor.propLJv.volcwdpha<- cor.test(EAB_CWD_Paired$prop_logjam_vo,
-                                  EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,method = "pearson")
-cor.propLJv.volcwdpha
-#not significant
-#snag - normal so use pearson
-cor.propLJv.baspha<-cor.test(EAB_CWD_Paired$prop_logjam_vo,EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                              method="pearson")
-cor.propLJv.baspha
-#not significant
-
-#no insitu per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$No_insitu_per_length)
-#W = 0.92252, p-value = 0.5237, normally distributed
-#CWD - not normal
-cor.noinsitupm.nocwdpha<- cor.test(EAB_CWD_Paired$No_insitu_per_length,
-                                 EAB_CWD_Paired$Total_CWD_Nopha,
-                                 method = "spearman")
-cor.noinsitupm.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.noinsitupm.nospha<-cor.test(EAB_CWD_Paired$No_insitu_per_length,
-                                EAB_CWD_Paired$Total_Snag_Nopha,
-                                method="pearson")
-cor.noinsitupm.nospha
-#not significant
-
-#no insitu per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$No_insitu_per_area)
-#W = 0.8563, p-value = 0.1768, normally distributed
-#CWD - not normal
-cor.noinsitupha.nocwdpha<- cor.test(EAB_CWD_Paired$No_insitu_per_area,
-                                   EAB_CWD_Paired$Total_CWD_Nopha,
-                                   method = "spearman")
-cor.noinsitupha.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.noinsitupha.nospha<-cor.test(EAB_CWD_Paired$No_insitu_per_area,
-                                EAB_CWD_Paired$Total_Snag_Nopha,
-                                method="pearson")
-cor.noinsitupha.nospha
-#not significant
-
-#prop insitu pieces
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_insitu_pieces)
-#W = 0.90399, p-value = 0.3981, normally distributed
-#CWD - not normal
-cor.propinsitup.nocwdpha<- cor.test(EAB_CWD_Paired$prop_insitu_pieces,
-                                    EAB_CWD_Paired$Total_CWD_Nopha,
-                                    method = "spearman")
-cor.propinsitup.nocwdpha
-#not significant
-#snag - normal so use pearson
-cor.propinsitup.nospha<-cor.test(EAB_CWD_Paired$prop_insitu_pieces,
-                                 EAB_CWD_Paired$Total_Snag_Nopha,
-                                 method="pearson")
-cor.propinsitup.nospha
-#not significant
-
-#volume insitu per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$Vol_insitu_per_length)
-#W = 0.897, p-value = 0.3565, normally distributed
-#CWD - log transform
-cor.volinsitupm.volcwdpha<- cor.test(EAB_CWD_Paired$Vol_insitu_per_length,
-                                    EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,
-                                    method = "pearson")
-cor.volinsitupm.volcwdpha
-#significant positive
-#Visualize
-ripCWDDenslab<-expression(paste("Riparian CWD Density (",m^3," per ha)"))
-insituvolpllab<-expression(paste("Aquatic ", italic("In situ"), " Density (",m^3," per m)"))
-ggplot(EAB_CWD_Paired, aes(y=Vol_insitu_per_length, x=Total_CWD_Vol_m3pha)) +
-  geom_point(size=3) +
-  xlab(ripCWDDenslab)+
-  ylab(insituvolpllab)+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-#snag - normal so use pearson
-cor.volinsitupm.baspha<-cor.test(EAB_CWD_Paired$Vol_insitu_per_length,
-                                 EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                                 method="pearson")
-cor.volinsitupm.baspha
-#not significant
-
-#volume insitu per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$Vol_insitu_per_area)
-#W = 0.88006, p-value = 0.2694, normally distributed
-#CWD - log transform
-cor.volinsitupha.volcwdpha<- cor.test(EAB_CWD_Paired$Vol_insitu_per_area,
-                                     EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,
-                                     method = "pearson")
-cor.volinsitupha.volcwdpha
-#not significant
-#snag - normal so use pearson
-cor.volinsitupha.baspha<-cor.test(EAB_CWD_Paired$Vol_insitu_per_area,
-                                 EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                                 method="pearson")
-cor.volinsitupha.baspha
-#not significant
-
-#prop insitu volume
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_insitu_vol)
-#W = 0.87537, p-value = 0.2484, normally distributed
-#CWD - log transform
-cor.propinsituvol.volcwdpha<- cor.test(EAB_CWD_Paired$prop_insitu_vol,
-                                      EAB_CWD_Paired$log10Total_CWD_Vol_m3pha,
-                                      method = "pearson")
-cor.propinsituvol.volcwdpha
-#significant positive
+#snag - normal 
+nipl.ns.lm<-lm(No_insitu_per_length~Total_Snag_Nopha, data=EAB_CWD_Paired)
+summary(nipl.ns.lm)
+#significant = p<0.01
 #visualize
-propinsituvollab<-expression(paste("Aquatic ", italic("In situ"), " Relative Volume"))
-ggplot(EAB_CWD_Paired, aes(y=prop_insitu_vol, x=Total_CWD_Vol_m3pha)) +
+propinsituvollab<-expression(paste("Aquatic ", italic("In situ"), " (#/m)"))
+ggplot(EAB_CWD_Paired, aes(y=No_insitu_per_length, x=Total_Snag_Nopha)) +
   geom_point(size=3) +
-  xlab(ripCWDDenslab)+
+  xlab("Number Standing Dead Trees per ha")+
   ylab(propinsituvollab)+
   theme(panel.background = element_rect(fill = "white", colour = "grey50"),
         axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
         axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
         legend.position = "none")
-#snag - normal so use pearson
-cor.propinsituvol.baspha<-cor.test(EAB_CWD_Paired$prop_insitu_vol,
-                                  EAB_CWD_Paired$Total_Snag_BA_m2pha,
-                                  method="pearson")
-cor.propinsituvol.baspha
-#not significant
 
-#Number of ash per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$No_ash_per_length)
-#W = 0.97721, p-value = 0.9369, normally distributed
-#CWD - not normal
-cor.noapm.noacwdpha<- cor.test(EAB_CWD_Paired$No_ash_per_length,
-                                       EAB_CWD_Paired$NoCWDperha_Ash,
-                                       method = "spearman")
-cor.noapm.noacwdpha
+#prop CWD volume ash
+#CWD - log transformation, log10Total_CWD_Vol_m3pha
+pa.vCWD.lm<-lm(prop_Ash_CWD_vol~log10Total_CWD_Vol_m3pha, data=EAB_CWD_Paired)
+summary(pa.vCWD.lm)
 #not significant
-#snag - normal so use pearson
-cor.noapm.noaspha<-cor.test(EAB_CWD_Paired$No_ash_per_length,
-                                   EAB_CWD_Paired$Noperha_Ash_Snag,
-                                   method="pearson")
-cor.noapm.noaspha
-#not significant
-
-#Number of ash per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$No_ash_per_area)
-#W = 0.91198, p-value = 0.4495, normally distributed
-#CWD - not normal
-cor.noapha.noacwdpha<- cor.test(EAB_CWD_Paired$No_ash_per_area,
-                               EAB_CWD_Paired$NoCWDperha_Ash,
-                               method = "spearman")
-cor.noapha.noacwdpha
-#not significant
-#snag - normal so use pearson
-cor.noapha.noaspha<-cor.test(EAB_CWD_Paired$No_ash_per_area,
-                            EAB_CWD_Paired$Noperha_Ash_Snag,
-                            method="pearson")
-cor.noapha.noaspha
-#significant postive
-#Visualize, convert stream area to ha
-EAB_CWD_Paired$No_ash_per_ha<-1000*EAB_CWD_Paired$No_ash_per_area
-ggplot(EAB_CWD_Paired, aes(y=No_ash_per_ha, x=Noperha_Ash_Snag)) +
-  geom_point(size=3) +
-  xlab("Ash Snag Frequency (Number per ha)")+
-  ylab("Aquatic Ash CWD Frequency (Number per ha)")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.position = "none")
-
-#prop ash pieces
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_ash_pieces)
-#W = 0.96054, p-value = 0.8239, normally distributed
-#CWD - normal
-cor.propap.propacwdp<- cor.test(EAB_CWD_Paired$prop_ash_pieces,
-                                EAB_CWD_Paired$prop_Ash_CWD_no,
-                                method = "pearson")
-cor.propap.propacwdp
-#not significant
-#snag - normal so use pearson
-cor.propap.propasp<-cor.test(EAB_CWD_Paired$prop_ash_pieces,
-                             EAB_CWD_Paired$prop_Ash_snag_no,
-                             method="pearson")
-cor.propap.propasp
-#not significant
-
-#vol ash per stream length
-#test normality
-shapiro.test(EAB_CWD_Paired$Vol_ash_per_length)
-#W = 0.95043, p-value = 0.7438, normally distributed
-#CWD - log10 transform
-cor.volapm.volacwdpha<- cor.test(EAB_CWD_Paired$Vol_ash_per_length,
-                                EAB_CWD_Paired$log10VolCWD_m3perha_Ash,
-                                method = "pearson")
-cor.volapm.volacwdpha
-#not significant
-#snag - log10 transformation
-cor.volapm.baaspha<-cor.test(EAB_CWD_Paired$Vol_ash_per_length,
-                             EAB_CWD_Paired$log10BAperha_Ash_Snag,
-                             method="pearson")
-cor.volapm.baaspha
-#not significant
-
-#vol ash per stream area
-#test normality
-shapiro.test(EAB_CWD_Paired$Vol_ash_per_area)
-#W = 0.97827, p-value = 0.9426, normally distributed
-#CWD - log10 transform
-cor.volapha.volacwdpha<- cor.test(EAB_CWD_Paired$Vol_ash_per_area,
-                                 EAB_CWD_Paired$log10VolCWD_m3perha_Ash,
-                                 method = "pearson")
-cor.volapha.volacwdpha
-#not significant
-#snag - log10 transformation
-cor.volapha.baaspha<-cor.test(EAB_CWD_Paired$Vol_ash_per_area,
-                             EAB_CWD_Paired$log10BAperha_Ash_Snag,
-                             method="pearson")
-cor.volapha.baaspha
-#not significant
-
-#prop ash volume
-#test normality
-shapiro.test(EAB_CWD_Paired$prop_ash_vol)
-#W = 0.95822, p-value = 0.8059, normally distributed
-#CWD - normal
-cor.propavol.propacwdvol<- cor.test(EAB_CWD_Paired$prop_ash_vol,
-                                  EAB_CWD_Paired$prop_Ash_CWD_vol,
-                                  method = "pearson")
-cor.propavol.propacwdvol
-#not significant
-#snag - normal
-cor.propavol.propasba<-cor.test(EAB_CWD_Paired$prop_ash_vol,
-                              EAB_CWD_Paired$prop_Ash_snag_BA,
-                              method="pearson")
-cor.propavol.propasba
+#snag - normal Total_Snag_BA_m2pha
+pa.vs.lm<-lm(prop_Ash_CWD_vol~Total_Snag_BA_m2pha, data=EAB_CWD_Paired)
+summary(pa.vs.lm)
 #not significant
 
 #######################################
-#Summary of correlation analyses:
-#no snags pos cor no logs per area
-#no cwd cor neg no log jams per length
-#no cwd cor neg no log jams per area
-#no snags neg cor no log jam pieces per length
-#no snags neg cor prop pieces in log jams
-#vol cwd pos cor vol insitu per length
-#vol cwd pos cor prop insitu vol
-#no ash snag pos cor no ash per area
-#only include per area in dissertation
+#Summary of linear regressions:
+#only one sigificant - prop insitu vol ~ total CWD vol per ha
 ########################################
 
 ####################################
@@ -1896,6 +957,18 @@ EAB_Ter_H2o_aqcwd<-merge(EAB_Ter_H20,EAB_AqCWD_Paired,by=c("Stream","Gap_locatio
 
 #create total basal area variable
 EAB_Ter_H2o_aqcwd$Total_Live_BA<-(rowSums(EAB_Ter_H2o_aqcwd[, grep("BAperha_",names(EAB_Ter_H2o_aqcwd))]))-(rowSums(EAB_Ter_H2o_aqcwd[, grep("_snag",names(EAB_Ter_H2o_aqcwd))]))
+
+#summary stats for manuscript
+#Create new dataset that subsets just gap
+EAB_Ter_H2o_aqcwd_Gap<-subset(EAB_Ter_H2o_aqcwd, Gap_location=="Gap")
+#Calculate summary stats for manuscript
+EAB_Ter_H2o_aqcwd_Gap %>%  get_summary_stats(Total_Live_BA, type = "mean_se")
+
+#Create new dataset that subsets just forest
+EAB_Ter_H2o_aqcwd_F<-subset(EAB_Ter_H2o_aqcwd, Gap_location!="Gap")
+#Calculate summary stats for manuscript
+EAB_Ter_H2o_aqcwd %>%  get_summary_stats(Total_Live_BA, type = "mean_se")
+
 #Change order of levels for gap location
 EAB_Ter_H2o_aqcwd$Gap_location<- factor(EAB_Ter_H2o_aqcwd$Gap_location, levels = c("Upstream", "Gap", "Downstream"))
 #first do mixed models for gap location
@@ -1968,6 +1041,24 @@ ggplot(EAB_Ter_H2o_aqcwd, aes(x=Total_Live_BA, y=X.DO, color=Gap_location)) +
 EAB_Ter_H2o_aqcwd %>%
   group_by(Gap_location) %>%
   get_summary_stats(X.DO, type = "mean_se")
+ggplot(EAB_Ter_H2o_aqcwd, aes(x=Gap_location, y=X.DO)) +
+  geom_boxplot() +
+  ylab("Percent Dissolved Oxygen")+
+  xlab("Gap Location")+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+EAB_Ter_H2o_aqcwd$Watershed = forcats::fct_rev(factor(EAB_Ter_H2o_aqcwd$Watershed))
+ggplot(EAB_Ter_H2o_aqcwd, aes(x=Gap_location, y=X.DO, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Percent Dissolved Oxygen")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
 
 #pH
 #build model
@@ -2031,6 +1122,96 @@ EAB_Ter_H2o_aqcwd %>%
 #pH significantly higher downstream and in grand river watershed
 #total basal area does not influence
 ###########################
+
+#Now try with year since gap formation as predictor rather than watershed
+#Create time since gap formation variable
+EAB_Ter_H2o_aqcwd$YearSinceGF<-2016-EAB_Ter_H2o_aqcwd$Year_Gapformation
+#Make sure the input variables aren't correlated
+hetcor(EAB_Ter_H2o_aqcwd$YearSinceGF,EAB_Ter_H2o_aqcwd$Stream,EAB_Ter_H2o_aqcwd$Gap_location,
+       EAB_Ter_H2o_aqcwd$Total_Live_BA)
+#Stream is highly correlated to year of gap formation. So only include year of gap formation in these models, don't include the mixed effect
+
+#Water temp
+lm.wty= lm(Water_temp~YearSinceGF+Gap_location+Total_Live_BA, data=EAB_Ter_H2o_aqcwd)
+plot(lm.wty,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.wty, 3)
+#no fitted pattern and red line approximately horizontal
+plot(lm.wty, 2)
+#looks skewed at each end. test normality of water temp
+shapiro.test(EAB_Ter_H2o_aqcwd$Water_temp)
+range(EAB_Ter_H2o_aqcwd$Water_temp)
+#W = 0.83708, p-value = 3.517e-06, not normal, log transform
+#range is biologically significant
+EAB_Ter_H2o_aqcwd$log10Water_temp<-log10(EAB_Ter_H2o_aqcwd$Water_temp+1)
+lm.wtylog= lm(log10Water_temp~YearSinceGF+Gap_location+Total_Live_BA, data=EAB_Ter_H2o_aqcwd)
+plot(lm.wtylog,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.wtylog, 3)
+#no fitted pattern and red line approximately horizontal
+plot(lm.wtylog, 2)
+#Didn't really improve. So use non transformed model for interpretability
+summary(lm.wty)
+summary(lm.wtylog)
+#not significant
+
+#mS_cm
+range(EAB_Ter_H2o_aqcwd$mScm)
+#0.129-1.1
+
+#X.DO
+sort(EAB_Ter_H2o_aqcwd$X.DO)
+#ranges from 57.3 to 139.0, so biologically significant range
+shapiro.test(EAB_Ter_H2o_aqcwd$X.DO)
+#W = 0.96855, p-value = 0.1925, normal
+#build model
+lm.doy= lm(X.DO~YearSinceGF+Gap_location+Total_Live_BA, data=EAB_Ter_H2o_aqcwd)
+plot(lm.doy,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.doy, 3)
+#no fitted pattern and red line approximately horizontal
+plot(lm.doy, 2)
+#normal
+summary(lm.doy)
+#antly lower downstream
+#visualize
+ggplot(EAB_Ter_H2o_aqcwd, aes(x=Year_Gapformation, y=X.DO, color=Gap_location)) +
+  geom_point() +
+  ylab("Percent Dissolved Oxygen")+
+  xlab("Year of Gap Formation")+
+  scale_color_manual(values=Gap_location_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+
+#pH
+sort(EAB_Ter_H2o_aqcwd$pH)
+#range 7.95 to 8.68 - not expected to be biologically relevant
+
+#NTU
+sort(EAB_Ter_H2o_aqcwd$NTU)
+#0.5-110 range
+boxplot.stats(EAB_Ter_H2o_aqcwd$NTU)$out
+#Three outliers - 46, 53, and 110
+hist(EAB_Ter_H2o_aqcwd$NTU)
+#skewed, so log tranform
+EAB_Ter_H2o_aqcwd$log10NTU<-log10(EAB_Ter_H2o_aqcwd$NTU+1)
+boxplot.stats(EAB_Ter_H2o_aqcwd$log10NTU)$out
+#no outliers
+#build model
+lm.ntuy= lm(log10NTU~YearSinceGF+Gap_location+Total_Live_BA, data=EAB_Ter_H2o_aqcwd)
+plot(lm.ntuy,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.ntuy, 3)
+#no fitted pattern and red line approximately horizontal
+plot(lm.ntuy, 2)
+#normal
+summary(lm.ntuy)
+#nothing significant
+EAB_Ter_H2o_aqcwd %>%
+  group_by(Watershed) %>%
+  get_summary_stats(NTU, type = "mean_se")
 
 #########################
 #Aquatic Leaf Litter
@@ -2138,6 +1319,16 @@ hist(residuals(lmer.AR),col="darkgray")
 #normal
 summary(lmer.AR)
 #nothing significant
+EAB_Ter_H2o_aqcwd_ALL$Watershed = forcats::fct_rev(factor(EAB_Ter_H2o_aqcwd_ALL$Watershed))
+ggplot(EAB_Ter_H2o_aqcwd_ALL, aes(x=Gap_location, y=ALL_Richness, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Aquatic Leaf Litter Richness")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
 
 #all prop ash
 #build model
@@ -2159,7 +1350,15 @@ hist(residuals(glm.ALLA),col="darkgray")
 #normal
 summary(glm.ALLA)
 #intercept significant
-
+ggplot(EAB_Ter_H2o_aqcwd_ALL, aes(x=Gap_location, y=ALL_prop_Ash, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Aquatic Leaf Litter Ash")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
 #all prop oak
 #build model
 lmer.ALLO= lme(ALL_prop_Oak~Watershed+Gap_location, random=~1|Stream,
@@ -2185,6 +1384,95 @@ summary(glm.ALLO)
 #Summary: aquatic leaf litter composition not altered by watershed or gap location
 ########################
 
+#Now try with year since gap formation rather than watershed
+#CAn't use mixed model because stream and year are correlated, so use linar model
+
+#ALL richness
+#build model
+lm.ARy= lm(ALL_Richness~YearSinceGF+Gap_location, data=EAB_Ter_H2o_aqcwd_ALL)
+plot(lm.ARy,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.ARy, 3)
+#no fitted pattern and red line approximately horizontal
+plot(lm.ARy, 2)
+#looks normal
+summary(lm.ARy)
+#not significant
+#visualize
+EAB_Ter_H2o_aqcwd_ALL$Year_Gapformation_factor<-as.factor(EAB_Ter_H2o_aqcwd_ALL$Year_Gapformation)
+ggplot(EAB_Ter_H2o_aqcwd_ALL, aes(x=Gap_location, y=ALL_Richness, fill=Year_Gapformation_factor)) +
+  geom_boxplot() +
+  ylab("Aquatic Leaf Litter Richness")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=YGF_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+
+#all prop ash
+#use logistic model for proportional data
+glm.ALLA<-glm(ALL_prop_Ash~YearSinceGF+Gap_location,binomial,data=EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLA)
+#not significant, residenual deviance < df
+plot(glm.ALLA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLA,3)
+#positive trend, try with log transformation
+glm.ALLAlog<-glm(log10(ALL_prop_Ash+1)~YearSinceGF+Gap_location,binomial,data=EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLAlog)
+#not significant, residenual deviance < df
+plot(glm.ALLAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLAlog,3)
+#positive trend, try with binary outcomes
+#convert to presence absence of ash
+EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Ash<-EAB_Ter_H2o_aqcwd_ALL$ALL_prop_Ash
+EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Ash[EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Ash > 0] <- 1 
+glm.ALLAbi<- glm(ALL_pres_Ash~YearSinceGF+Gap_location, family = binomial,data = EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLAbi)
+#not significant
+plot(glm.ALLAbi,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLAbi,3)
+#positive skew
+#since nothing is fixing it and nothing is significant, use the original porportional outcomes result
+
+#all prop oak
+#build model
+#all prop ash
+#use logistic model for proportional data
+glm.ALLO<-glm(ALL_prop_Oak~YearSinceGF+Gap_location,binomial,data=EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLO)
+#not significant, residenual deviance < df
+plot(glm.ALLO,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLO,3)
+#close to flat, a bit positive
+plot(glm.ALLO,2)
+#a bit skewed, try log transformation
+glm.ALLOlog<-glm(log10(ALL_prop_Oak+1)~YearSinceGF+Gap_location,binomial,data=EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLOlog)
+#not significant, residenual deviance < df
+plot(glm.ALLOlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLOlog,3)
+#slight positive, but not bad
+plot(glm.ALLOlog,2)
+#some skew, so convert to presence absence of oak
+EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Oak<-EAB_Ter_H2o_aqcwd_ALL$ALL_prop_Oak
+EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Oak[EAB_Ter_H2o_aqcwd_ALL$ALL_pres_Oak > 0] <- 1 
+glm.ALLObi<- glm(ALL_pres_Oak~YearSinceGF+Gap_location, family = binomial,data = EAB_Ter_H2o_aqcwd_ALL)
+summary(glm.ALLObi)
+#not significant
+plot(glm.ALLObi,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ALLObi,3)
+#flat
+plot(glm.ALLObi,2)
+#very skewed
+#since nothing is fixing it and nothing is significant, use the original porportional outcomes result
+
 #Move to correlation analysis
 
 ##ALL richness
@@ -2192,6 +1480,7 @@ summary(glm.ALLO)
 shapiro.test(EAB_Ter_H2o_aqcwd_ALL$ALL_Richness)
 #W = 0.94056, p-value = 0.009839, not normal use non parametric
 #Terrestrial richness
+names(EAB_Ter_H2o_aqcwd_ALL)
 EAB_Ter_H2o_aqcwd_ALL$Terrestrial_Live_Richness<-rowSums(EAB_Ter_H2o_aqcwd_ALL[c(44,45,47,49,51,53:55,57,58,60,61,63,65,67,69,70)]> 0)
 
 cor.AR.TerrRich<- cor.test(EAB_Ter_H2o_aqcwd_ALL$ALL_Richness,
@@ -2229,69 +1518,268 @@ cor.Allo.Terrpropo
 #In mapping file, use corrected gap/basket labels (see above with leaf litter)
 
 #Upload map
-EAB_16S_map <- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_Map_Filtered_R.csv", header=T)
+EAB_16S_map <- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_Map_Filtered_R_rev.csv", header=T)
 #Combine map with other env variables
-EAB_16S_map$Source<-revalue(EAB_16S_map$Source, c("Aquatic Leaf Litter"="ALL", "Live Leaves"="LL", "Terrestrial Litter"="TL"))
+EAB_16S_map$Source<-revalue(EAB_16S_map$Source, c("AquaticLeafLitter"="ALL", "LiveLeaves"="LL", "TerrestrialLitter"="TL"))
+EAB_16S_map$YearSinceGF<-2016-EAB_16S_map$Year_Gapformation
 #for just aquatic
-EAB_Ter_H2o_cwd_ALL_mics<-merge(EAB_Ter_H2o_aqcwd_ALL, EAB_16S_map, by=c("Stream","Watershed","Gap_location","Days_since_start"), all=T, no.dups=T)
+EAB_Ter_H2o_cwd_ALL_mics<-merge(EAB_16S_map, EAB_Ter_H2o_aqcwd_ALL,by=c("Stream","Watershed","Gap_location","Date","Days_since_start","Year_Gapformation","YearSinceGF"),all.x=TRUE)
 EAB_Ter_H2o_cwd_ALL_mics<-subset(EAB_Ter_H2o_cwd_ALL_mics, SampleID!="NA")
 row.names(EAB_Ter_H2o_cwd_ALL_mics)<-EAB_Ter_H2o_cwd_ALL_mics$SampleID
 #create new Gap variable in EAB_Ter_H2o_cwd_ALL_mics with Y,N to mirror terrestrial leaf litte rmicrobes
 EAB_Ter_H2o_cwd_ALL_mics$Gap<-EAB_Ter_H2o_cwd_ALL_mics$Gap_location
 EAB_Ter_H2o_cwd_ALL_mics$Gap<-revalue(EAB_Ter_H2o_cwd_ALL_mics$Gap, c("Downstream"="N", "Gap"="Y", "Upstream"="N", "Woods"="N"))
 
+#####Do this later###
+######
+
+#Create rarefaction graph with alpha diversity values
+EAB_Shannon<-read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/rev microbes/EAB_shannon.csv", header=T)
+EAB_Shannon$sample.id<- gsub("\\-", "_", EAB_Shannon$sample.id)
+rownames(EAB_Shannon)<-EAB_Shannon[,1]
+EAB_Shannon[,1]<-NULL
+EAB_Shannon<-data.frame(t(EAB_Shannon))
+EAB_Shannon$iteration<-NULL
+str(EAB_Shannon)
+EAB_Sh_m<-melt(EAB_Shannon, id.vars="sequences.per.sample")
+any(is.na(EAB_Sh_m))
+EAB_Sh_c_m<-cast(EAB_Sh_m, variable ~ sequences.per.sample, fun.aggregate=mean, na.omit=TRUE)
+EAB_Sh_c_m$Calculation<-rep("mean",147)
+EAB_Sh_c_var<-cast(EAB_Sh_m, variable ~ sequences.per.sample, fun.aggregate=var)
+EAB_Sh_c_var$Calculation<-rep("variance",147)
+EAB_Sh_c_m_var<-rbind(EAB_Sh_c_m,EAB_Sh_c_var)
+names(EAB_Sh_c_m_var)[names(EAB_Sh_c_m_var)=="variable"] <- "SampleID"
+EAB_Sh_c_m_var$Calculation<-as.factor(EAB_Sh_c_m_var$Calculation)
+EAB_Sh_c_m_var<-as.data.frame(EAB_Sh_c_m_var)
+EAB_Sh_c_m_var_m<-melt(EAB_Sh_c_m_var, id.vars=c("Calculation","SampleID"))
+EAB_Sh_c_m_var_c<-cast(EAB_Sh_c_m_var_m, variable + SampleID ~ Calculation)
+#Merge metadata onto rarefication file
+EAB_Sh_map <-merge(EAB_16S_map, EAB_Sh_c_m_var_c, by="SampleID")
+names(HC_Sh_map)[names(HC_Sh_map)=="variable"] <- "Sequences_per_sample"
+any(is.na(HC_Sh_map))
+HC_Sh_map$Sequences_per_sample<-as.numeric(as.character(HC_Sh_map$Sequences_per_sample))
+HC_Sh_map$Source<-factor(revalue(HC_Sh_map$Source, c("Stegopterna"="S. mutata", "Baetis"="B. brunneicolor", "Heptagenia"="H. flavescens")), levels =c("Biofilm", "Carcass", "B. brunneicolor", "H. flavescens", "S. mutata"))
+HC_Sh_map_sum_m <- summarySE(HC_Sh_map, measurevar=c("mean"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_Sh_map_sum_v <- summarySE(HC_Sh_map, measurevar=c("variance"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_Sh_map_sum_v$StandDev<-sqrt(HC_Sh_map_sum_v$variance)
+HC_Sh_map_sum_v$StandEr<-HC_Sh_map_sum_v$StandDev/sqrt(HC_Sh_map_sum_v$N)
+HC_Sh_sum_m_sd<-merge(HC_Sh_map_sum_m,HC_Sh_map_sum_v, by=0)
+#make rarefication plots
+ggplot(HC_Sh_sum_m_sd, aes(x=Sequences_per_sample.x, y=mean, colour=Source.x)) + 
+  geom_errorbar(aes(ymin=mean-StandEr, ymax=mean+StandEr), width=1) +
+  geom_line(size=1.5) +
+  geom_point(size=1.5) +
+  xlab("Number of reads sampled") +
+  ylab("Mean Shannon H' diversity") +
+  labs(colour = "Source") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=20),legend.text = element_text(size=16)) +
+  scale_color_manual(values=five_col_vec_babchs)
+
+#Faith's diversity
+HC_Faith_q2<-read.table("~/Documents/MSU/Research/Hunt_Creek_Salmon/Microbes/16S/HC_Faith_q2.txt", sep="\t", header=T)
+rownames(HC_Faith_q2)<-HC_Faith_q2[,1]
+HC_Faith_q2[,1]<-NULL
+HC_Faith<-data.frame(t(HC_Faith_q2))
+HC_Faith$iteration<-NULL
+str(HC_Faith)
+HC_F_m<-melt(HC_Faith, id.vars="sequences.per.sample")
+HC_F_c_m<-cast(HC_F_m, variable ~ sequences.per.sample, fun.aggregate=mean)
+HC_F_c_m$Calculation<-rep("mean",175)
+HC_F_c_var<-cast(HC_F_m, variable ~ sequences.per.sample, fun.aggregate=var)
+HC_F_c_var$Calculation<-rep("variance",175)
+HC_F_c_m_var<-rbind(HC_F_c_m,HC_F_c_var)
+names(HC_F_c_m_var)[names(HC_F_c_m_var)=="variable"] <- "SampleID"
+HC_F_c_m_var$Calculation<-as.factor(HC_F_c_m_var$Calculation)
+HC_F_c_m_var<-as.data.frame(HC_F_c_m_var)
+HC_F_c_m_var_m<-melt(HC_F_c_m_var, id.vars=c("Calculation","SampleID"))
+HC_F_c_m_var_c<-cast(HC_F_c_m_var_m, variable + SampleID ~ Calculation)
+#Merge metadata onto rarefication file
+HC_F_map <-merge(Hunt_Creek_16S_map, HC_F_c_m_var_c, by="SampleID")
+names(HC_F_map)[names(HC_F_map)=="variable"] <- "Sequences_per_sample"
+HC_F_map$Sequences_per_sample<-as.numeric(as.character(HC_F_map$Sequences_per_sample))
+HC_F_map$Source<-factor(revalue(HC_F_map$Source, c("Stegopterna"="S. mutata", "Baetis"="B. brunneicolor", "Heptagenia"="H. flavescens")), levels =c("Biofilm", "Carcass", "B. brunneicolor", "H. flavescens", "S. mutata"))
+HC_F_map_sum_m <- summarySE(HC_F_map, measurevar=c("mean"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_F_map_sum_v <- summarySE(HC_F_map, measurevar=c("variance"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_F_map_sum_v$StandDev<-sqrt(HC_F_map_sum_v$variance)
+HC_F_map_sum_v$StandEr<-HC_F_map_sum_v$StandDev/sqrt(HC_F_map_sum_v$N)
+HC_F_sum_m_sd<-merge(HC_F_map_sum_m,HC_F_map_sum_v, by=0)
+#make rarefication plots
+ggplot(HC_F_sum_m_sd, aes(x=Sequences_per_sample.x, y=mean, colour=Source.x)) + 
+  geom_errorbar(aes(ymin=mean-StandEr, ymax=mean+StandEr), width=1) +
+  geom_line(size=1.5) +
+  geom_point(size=1.5) +
+  xlab("Number of reads sampled") +
+  ylab("Mean Faith's phylogenetic diversity") +
+  labs(colour = "Source") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=20),legend.text = element_text(size=16)) +
+  scale_color_manual(values=five_col_vec_babchs)
+
+#Observed OTUs
+HC_Ob_q2<-read.table("~/Documents/MSU/Research/Hunt_Creek_Salmon/Microbes/16S/HC_Obs_q2.txt", sep="\t", header=T)
+rownames(HC_Ob_q2)<-HC_Ob_q2[,1]
+HC_Ob_q2[,1]<-NULL
+HC_Ob<-data.frame(t(HC_Ob_q2))
+HC_Ob$iteration<-NULL
+str(HC_Ob)
+HC_o_m<-melt(HC_Ob, id.vars="sequences.per.sample")
+HC_o_c_m<-cast(HC_o_m, variable ~ sequences.per.sample, fun.aggregate=mean)
+HC_o_c_m$Calculation<-rep("mean",175)
+HC_o_c_var<-cast(HC_o_m, variable ~ sequences.per.sample, fun.aggregate=var)
+HC_o_c_var$Calculation<-rep("variance",175)
+HC_o_c_m_var<-rbind(HC_o_c_m,HC_o_c_var)
+names(HC_o_c_m_var)[names(HC_o_c_m_var)=="variable"] <- "SampleID"
+HC_o_c_m_var$Calculation<-as.factor(HC_o_c_m_var$Calculation)
+HC_o_c_m_var<-as.data.frame(HC_o_c_m_var)
+HC_o_c_m_var_m<-melt(HC_o_c_m_var, id.vars=c("Calculation","SampleID"))
+HC_o_c_m_var_c<-cast(HC_o_c_m_var_m, variable + SampleID ~ Calculation)
+#Merge metadata onto rarefication file
+HC_o_map <-merge(Hunt_Creek_16S_map, HC_o_c_m_var_c, by="SampleID")
+names(HC_o_map)[names(HC_o_map)=="variable"] <- "Sequences_per_sample"
+HC_o_map$Sequences_per_sample<-as.numeric(as.character(HC_o_map$Sequences_per_sample))
+HC_o_map$Source<-factor(revalue(HC_o_map$Source, c("Stegopterna"="S. mutata", "Baetis"="B. brunneicolor", "Heptagenia"="H. flavescens")), levels =c("Biofilm", "Carcass", "B. brunneicolor", "H. flavescens", "S. mutata"))
+HC_o_map_sum_m <- summarySE(HC_o_map, measurevar=c("mean"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_o_map_sum_v <- summarySE(HC_o_map, measurevar=c("variance"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_o_map_sum_v$StandDev<-sqrt(HC_o_map_sum_v$variance)
+HC_o_map_sum_v$StandEr<-HC_o_map_sum_v$StandDev/sqrt(HC_o_map_sum_v$N)
+HC_o_sum_m_sd<-merge(HC_o_map_sum_m,HC_o_map_sum_v, by=0)
+#make rarefication plots
+ggplot(HC_o_sum_m_sd, aes(x=Sequences_per_sample.x, y=mean, colour=Source.x)) + 
+  geom_errorbar(aes(ymin=mean-StandEr, ymax=mean+StandEr), width=1) +
+  geom_line(size=1.5) +
+  geom_point(size=1.5) +
+  xlab("Number of reads sampled") +
+  ylab("Mean observed OTUs") +
+  labs(colour = "Source") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=20),legend.text = element_text(size=16)) +
+  scale_color_manual(values=five_col_vec_babchs)
+
+#Chao1
+HC_Ch_q2<-read.table("~/Documents/MSU/Research/Hunt_Creek_Salmon/Microbes/16S/HC_Chao1_q2.txt", sep="\t", header=T)
+rownames(HC_Ch_q2)<-HC_Ch_q2[,1]
+HC_Ch_q2[,1]<-NULL
+HC_Ch<-data.frame(t(HC_Ch_q2))
+HC_Ch$iteration<-NULL
+str(HC_Ch)
+HC_c_m<-melt(HC_Ch, id.vars="sequences.per.sample")
+HC_c_c_m<-cast(HC_c_m, variable ~ sequences.per.sample, fun.aggregate=mean)
+HC_c_c_m$Calculation<-rep("mean",175)
+HC_c_c_var<-cast(HC_c_m, variable ~ sequences.per.sample, fun.aggregate=var)
+HC_c_c_var$Calculation<-rep("variance",175)
+HC_c_c_m_var<-rbind(HC_c_c_m,HC_c_c_var)
+names(HC_c_c_m_var)[names(HC_c_c_m_var)=="variable"] <- "SampleID"
+HC_c_c_m_var$Calculation<-as.factor(HC_c_c_m_var$Calculation)
+HC_c_c_m_var<-as.data.frame(HC_c_c_m_var)
+HC_c_c_m_var_m<-melt(HC_c_c_m_var, id.vars=c("Calculation","SampleID"))
+HC_c_c_m_var_c<-cast(HC_c_c_m_var_m, variable + SampleID ~ Calculation)
+#Merge metadata onto rarefication file
+HC_c_map <-merge(Hunt_Creek_16S_map, HC_c_c_m_var_c, by="SampleID")
+names(HC_c_map)[names(HC_c_map)=="variable"] <- "Sequences_per_sample"
+HC_c_map$Sequences_per_sample<-as.numeric(as.character(HC_c_map$Sequences_per_sample))
+HC_c_map$Source<-factor(revalue(HC_c_map$Source, c("Stegopterna"="S. mutata", "Baetis"="B. brunneicolor", "Heptagenia"="H. flavescens")), levels =c("Biofilm", "Carcass", "B. brunneicolor", "H. flavescens", "S. mutata"))
+HC_c_map_sum_m <- summarySE(HC_c_map, measurevar=c("mean"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_c_map_sum_v <- summarySE(HC_c_map, measurevar=c("variance"), groupvars=c("Sequences_per_sample","Source"), na.rm=TRUE)
+HC_c_map_sum_v$StandDev<-sqrt(HC_c_map_sum_v$variance)
+HC_c_map_sum_v$StandEr<-HC_c_map_sum_v$StandDev/sqrt(HC_c_map_sum_v$N)
+HC_c_sum_m_sd<-merge(HC_c_map_sum_m,HC_c_map_sum_v, by=0)
+#make rarefication plots
+ggplot(HC_c_sum_m_sd, aes(x=Sequences_per_sample.x, y=mean, colour=Source.x)) + 
+  geom_errorbar(aes(ymin=mean-StandEr, ymax=mean+StandEr), width=1) +
+  geom_line(size=1.5) +
+  geom_point(size=1.5) +
+  xlab("Number of reads sampled") +
+  ylab("Mean Chao1 estimator") +
+  labs(colour = "Source") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=20),axis.title.y=element_text(size=20),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=20),legend.text = element_text(size=16)) +
+  scale_color_manual(values=five_col_vec_babchs)
+
+#####Created facetted graph for manuscript
+HC_Sh_sum_m_sd$alpha<-rep("A. Shannon Diveristy",50)
+HC_F_sum_m_sd$alpha<-rep("B. Faith's Phylogenetic Diveristy",50)
+HC_o_sum_m_sd$alpha<-rep("C. Observed OTUs",50)
+HC_c_sum_m_sd$alpha<-rep("D. Chao1 Estimator",50)
+HC_sum_m_sd<-rbind(HC_Sh_sum_m_sd,HC_F_sum_m_sd,HC_o_sum_m_sd,HC_c_sum_m_sd)
+ggplot(HC_sum_m_sd, aes(x=Sequences_per_sample.x, y=mean, colour=Source.x)) + 
+  geom_errorbar(aes(ymin=mean-StandEr, ymax=mean+StandEr), width=1) +
+  geom_line(size=1.5) +
+  geom_point(size=1.5) +
+  xlab("Number of Reads Sampled") +
+  ylab("Mean Alpha Diversity Value (+/- SEM)") +
+  labs(colour = "Source") +
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(family="Times New Roman", size=36, margin=margin(t=10,r=0,b=0,l=0)),
+        axis.title.y=element_text(family="Times New Roman", size=36, margin = margin(t = 0, r = 10, b = 0, l = 0)),
+        axis.text.x=element_text(family="Times New Roman", size=18),
+        axis.text.y = element_text(family="Times New Roman", size=18),
+        legend.position = 0, 
+        strip.text.x = element_text(family="Times New Roman", face="bold", size = 24)) +
+  scale_color_manual(values=five_col_vec_CBBaSH,                      
+                     limits=c("Carcass","Biofilm","B. brunneicolor","S. mutata","H. flavescens"),
+                     labels=c("Carcass","Biofilm",expression(paste(italic('B. brunneicolor'))),expression(paste(italic('S. mutata'))),expression(paste(italic('H. flavescens'))))) +
+  facet_wrap(~alpha,scales="free_y")
+
+###Back here again
+#########
+
 #Upload OTU table
-EAB_16S_OTU<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_OTUs.csv", header=T)
+EAB_16S_OTU<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_OTUs_rev.csv", header=T)
 #Format data frame so the OTU is row name
 row.names(EAB_16S_OTU)<-EAB_16S_OTU[,1]
 #Delete otu id column, now that otu id is row name
 EAB_16S_OTU$ID<-NULL
-#Delete sample 56
-EAB_16S_OTU$EAB_ALL_2016_56<-NULL
 EAB_16S_OTU_t<-t(EAB_16S_OTU)
 EAB_16S_OTU_t<-data.frame(EAB_16S_OTU_t, check.names = FALSE)
 
-#merge OTUs and delete 56
+#merge OTUs
 EAB_Paired_TA_OTU<-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_OTU_t, by=0, no.dups=T)
 
 #Combine with environmental variables
 EAB_16S_OTU_map <-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_OTU_t, by=0)
 #delete OTUs not found in any samples
 names(EAB_16S_OTU_map)
-EAB_16S_OTU<-EAB_16S_OTU_map[,177:ncol(EAB_16S_OTU_map)]
+EAB_16S_OTU<-EAB_16S_OTU_map[,182:ncol(EAB_16S_OTU_map)]
 EAB_16S_OTU<-EAB_16S_OTU[, colSums(EAB_16S_OTU != 0) > 0]
-#3182 OTUs found in all samples
+#3512 OTUs found in all samples
 
 #Upload family level taxonomy
-EAB_16S_f<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_f.csv", header=T)
+EAB_16S_f<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_f_rev.csv", header=T)
 #Format data frame so the family is row name
 row.names(EAB_16S_f)<-EAB_16S_f[,1]
 #Delete otu id column, now that otu id is row name
 EAB_16S_f$ID<-NULL
-#Delete sample 56
-EAB_16S_f$EAB_ALL_2016_56<-NULL
 EAB_16S_f_t<-t(EAB_16S_f)
 EAB_16S_f_t<-data.frame(EAB_16S_f_t, check.names = FALSE)
 
 #Combine with environmental variables
 EAB_16S_f_map <-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_f_t, by=0)
-#delete families not found in aquatic samples
+#delete families not found in 
 names(EAB_16S_f_map)
-EAB_16S_f<-EAB_16S_f_map[,177:ncol(EAB_16S_f_map)]
+EAB_16S_f<-EAB_16S_f_map[,182:ncol(EAB_16S_f_map)]
 EAB_16S_f<-EAB_16S_f_aq[, colSums(EAB_16S_f_aq != 0) > 0]
 sort(colSums(EAB_16S_f))
 #most common family is Bacillaceae
 stat.desc(EAB_16S_f$`k__Bacteria;p__Firmicutes;c__Bacilli;o__Bacillales;f__Bacillaceae`)
-#220 +/- 23
+#260 +/- 26
 EAB_16S_f_map_GF<-EAB_16S_f_map$Gap
 EAB_16S_f_map_W<-EAB_16S_f_map$Watershed
+EAB_16S_f_map_SW<-paste(EAB_16S_f_map$Source,EAB_16S_f_map$Watershed)
+EAB_16S_f_map_YGF<-as.factor(EAB_16S_f_map$Year_Gapformation)
 
 #Upload phylogenetic diversity
-EAB_16S_fpd<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_fpd.csv", header=T)
+EAB_16S_fpd<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_fpd_rev.csv", header=T)
 #Format data frame so the ID is row name
 row.names(EAB_16S_fpd)<-EAB_16S_fpd[,1]
-#Delete sample 56
-EAB_16S_fpd<-subset(EAB_16S_fpd, X!="EAB_ALL_2016_56")
 #Delete otu id column, now that otu id is row name
 EAB_16S_fpd$X<-NULL
 #Combine with environmental variables
@@ -2299,33 +1787,29 @@ EAB_16S_fpd_map<-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_fpd, by=0)
 
 ####Terrestrial connection microbes - all habitats
 
-#Model watershed + gap + source 1|stream mixed effect
+#Model watershed + gap + source linear model
 
 #Faith's PD for all habitats
 range(EAB_16S_fpd_map$faith_pd)
-#2.25-32.78
+#1.96-34.04
 #build model
-lmer.FPD= lme(faith_pd~Watershed+Gap+Source, random=~1|Stream,
-               data=EAB_16S_fpd_map,
-               method="REML", na.action=na.omit)
+lm.FPD= lm(faith_pd~YearSinceGF+Gap+Source, data=EAB_16S_fpd_map)
 #check assumptions
-hist(residuals(lmer.FPD),col="darkgray")
-shapiro.test(residuals(lmer.FPD))
-#W = 0.90199, p-value = 5.231e-05,not normal, transform
-EAB_16S_fpd_map$log10faith_pd<-log10(EAB_16S_fpd_map$faith_pd)
-#build model
-lmer.logFPD= lme(log10faith_pd~Watershed+Gap+Source, random=~1|Stream,
-              data=EAB_16S_fpd_map,
-              method="REML", na.action=na.omit)
+plot(lm.FPD,1)
+#flat
+plot(lm.FPD,3)
+#mostly flat, slight positive
+plot(lm.FPD,2)
+#skew towards top, try log transformed
+lm.FPDlog= lm(log10(faith_pd)~YearSinceGF+Gap+Source, data=EAB_16S_fpd_map)
 #check assumptions
-hist(residuals(lmer.logFPD),col="darkgray")
-shapiro.test(residuals(lmer.logFPD))
-#W = 0.986, p-value = 0.6361 normal
-summary(lmer.logFPD)
-#intercept and source significant
-#for interpretability, see summary for not transformed
-summary(lmer.FPD)
-anova(lmer.FPD)
+plot(lm.FPDlog,1)
+#flat
+plot(lm.FPDlog,3)
+#flat
+plot(lm.FPDlog,2)
+#much better
+summary(lm.FPDlog)
 EAB_16S_fpd_map %>% emmeans_test(log10faith_pd ~ Source, p.adjust.method = "bonferroni",
                                   model = lmer.FPD)
 #TLL significantly greater than LL and ALL
@@ -2348,11 +1832,9 @@ EAB_16S_fpd_map %>%
 
 #Chao1
 #Upload chao1
-EAB_16S_cha<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_chao.csv", header=T)
+EAB_16S_cha<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_chao_rev.csv", header=T)
 #Format data frame so the ID is row name
 row.names(EAB_16S_cha)<-EAB_16S_cha[,1]
-#Delete sample 56
-EAB_16S_cha<-subset(EAB_16S_cha, X!="EAB_ALL_2016_56")
 #Delete otu id column, now that otu id is row name
 EAB_16S_cha$X<-NULL
 #Combine with environmental variables
@@ -2360,27 +1842,24 @@ EAB_16S_cha_map <-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_cha, by=0)
 
 #start modelling
 range(EAB_16S_cha_map$chao1)
-#27-728
+#27-646
 #build model
-lmer.cha= lme(chao1~Watershed+Gap+Source, random=~1|Stream,
-              data=EAB_16S_cha_map,
-              method="REML", na.action=na.omit)
+lm.cha= lm(chao1~YearSinceGF+Gap+Source, data=EAB_16S_cha_map)
 #check assumptions
-hist(residuals(lmer.cha),col="darkgray")
-shapiro.test(residuals(lmer.cha))
-#W = 0.86739, p-value = 2.859e-06,not normal, transform
-EAB_16S_cha_map$log10chao1<-log10(EAB_16S_cha_map$chao1)
-#build model
-lmer.logcha= lme(log10chao1~Watershed+Gap+Source, random=~1|Stream,
-                 data=EAB_16S_cha_map,
-                 method="REML", na.action=na.omit)
+plot(lm.cha,1)
+#flat
+plot(lm.cha,3)
+#positive, try log transformed
+lm.chalog= lm(log10(chao1)~YearSinceGF+Gap+Source, data=EAB_16S_cha_map)
 #check assumptions
-hist(residuals(lmer.logcha),col="darkgray")
-shapiro.test(residuals(lmer.logcha))
-#W = 0.98882, p-value = 0.7987 normal
-summary(lmer.logcha)
-#intercept and source significant
-summary(lmer.cha)
+plot(lm.chalog,1)
+#flat
+plot(lm.chalog,3)
+#flat, sight positive
+plot(lm.chalog,2)
+#looks okay, slight skew
+summary(lm.chalog)
+#source significant
 EAB_16S_cha_map %>% emmeans_test(log10chao1 ~ Source, p.adjust.method = "bonferroni",
                                  model = lmer.logcha)
 #TLL greater than ALL and LL
@@ -2404,7 +1883,7 @@ EAB_16S_cha_map %>%
 #Now look for community level differences using PERMANOVA and adonis
 
 #Upload unifrac distance matrix
-EAB_16S_uni<-read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_WUnifrac.tsv", sep="\t", header = T, row.names=1)
+EAB_16S_uni<-read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_WUnifrac_rev.csv", header = T, row.names=1)
 
 #Combine distance matrix with environmental variables
 row.names(EAB_16S_uni)
@@ -2412,24 +1891,27 @@ row.names(EAB_Ter_H2o_cwd_ALL_mics)
 EAB_16S_uni_map<-merge(EAB_Ter_H2o_cwd_ALL_mics, EAB_16S_uni, by="row.names")
 row.names(EAB_16S_uni_map)<-EAB_16S_uni_map[,1]
 EAB_16S_uni_map<-EAB_16S_uni_map[,-c(1)]
-#delete EAB_ALL_56_2016 because error in sequencing
 names(EAB_16S_uni_map)
-EAB_16S_uni<-as.matrix(EAB_16S_uni_map[,c(176:205,207:246)])
+EAB_16S_uni<-as.matrix(EAB_16S_uni_map[,c(181:ncol(EAB_16S_uni_map))])
 #UNI-Create overall environmental data matrix for community analysis with uni distances
-EAB_16S_uni_env<-EAB_16S_uni_map[,1:175]
+EAB_16S_uni_env<-EAB_16S_uni_map[,1:180]
 EAB_16S_uni_env$Gap<-revalue(EAB_16S_uni_env$Gap, c("N"="Forest", "Y"="Gap"))
 EAB_16S_uni_env_GF<-EAB_16S_uni_env$Gap
 EAB_16S_uni_env_GFS<-as.factor(paste(EAB_16S_uni_env$Gap.y,EAB_16S_uni_env$Source))
 EAB_16S_uni_env_S<-as.factor(EAB_16S_uni_env$Source)
+EAB_16S_uni_env_S<-revalue(EAB_16S_uni_env_S, c("ALL"="Aquatic Leaf Litter", "LL"="Live Leaves",
+                                                "TL"="Terrestrial Leaf Litter"))
+EAB_16S_uni_env_S<-factor(EAB_16S_uni_env_S, levels = c("Aquatic Leaf Litter", "Terrestrial Leaf Litter", "Live Leaves"))
 EAB_16S_uni_env_W<-as.factor(EAB_16S_uni_env$Watershed)
 
 #UNI-Overall permanova with unifrac distances
-adonis(as.dist(EAB_16S_uni) ~ (Source+Watershed+Gap)^2+Stream, data=EAB_16S_uni_env,
-       permutations=999)
-#source and source:watershed interaction significant
+adonis2(as.dist(EAB_16S_uni) ~ (Source+YearSinceGF+Gap)^2, data=EAB_16S_uni_env,
+       permutations=9999)
+#source significant
 
 #Visualize via nmds
 EAB_Paired_Mic_NMDS<-metaMDS(as.dist(EAB_16S_uni))
+#stress 0.12
 
 #Stressplot macroinvertebrate Nmds
 stressplot(EAB_Paired_Mic_NMDS)
@@ -2438,9 +1920,9 @@ stressplot(EAB_Paired_Mic_NMDS)
 ordiplot(EAB_Paired_Mic_NMDS, type="n")
 with(EAB_Paired_Mic_NMDS, points(EAB_Paired_Mic_NMDS, display="sites", col=source_col_vec[EAB_16S_uni_env_S], pch=19))
 with(EAB_Paired_Mic_NMDS, legend("topleft", legend=levels(EAB_16S_uni_env_S), bty="n", col=source_col_vec, pch=19, pt.bg=source_col_vec))
-with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#1f78b4", show.groups = "ALL"))
-with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#b15928", show.groups = "LL"))
-with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#33a02c", show.groups = "TL"))
+with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#1f78b4", show.groups = "Aquatic Leaf Litter"))
+with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#33a02c", show.groups = "Live Leaves"))
+with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_S, kind="se", conf=0.95, lwd=2, col="#b15928", show.groups = "Terrestrial Leaf Litter"))
 
 #NMDSplot for watershed
 ordiplot(EAB_Paired_Mic_NMDS, type="n")
@@ -2453,13 +1935,30 @@ with(EAB_Paired_Mic_NMDS, ordiellipse(EAB_Paired_Mic_NMDS, EAB_16S_uni_env_W, ki
 #indicator species analysis for watershed
 EAB_Mic_Com_W_indic<-signassoc(EAB_16S_f, cluster=EAB_16S_f_map_W,  mode=0, alternative = "two.sided",control = how(nperm=999))
 EAB_Mic_Com_W_indic_sig<-subset(EAB_Mic_Com_W_indic, psidak<=0.05)
-#11 indicator families for watershed
+#7 indicator families for watershed
+
+#indicator species analysis for Year since gap formation
+EAB_Mic_Com_YGF_indic<-data.frame(signassoc(EAB_16S_f, cluster=EAB_16S_f_map_YGF,  mode=0, alternative = "two.sided",control = how(nperm=999)))
+EAB_Mic_Com_YGF_indic_sig<-subset(EAB_Mic_Com_YGF_indic, psidak<=0.05)
+#6 indicator families for year of gap formation
+
+#indicator species analysis for watershedxleaf type
+EAB_Mic_Com_SW_indic<-signassoc(EAB_16S_f, cluster=EAB_16S_f_map_SW,  mode=0, alternative = "two.sided",control = how(nperm=999))
+EAB_Mic_Com_SW_indic_sig<-subset(EAB_Mic_Com_SW_indic, psidak<=0.05)
+#30 indicator families for watershedxleaf type
+#k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria;o__Sphingomonadales;__ indicates gaps in clinton
+EAB_16S_f_map %>%
+  group_by(Source,Watershed) %>%
+  get_summary_stats("k__Bacteria;p__Actinobacteria;c__Actinobacteria;o__Actinomycetales;f__Frankiaceae", type = "mean_se")
+EAB_16S_f_map %>%
+  group_by(Source,Watershed) %>%
+  get_summary_stats("k__Bacteria;p__Firmicutes;c__Bacilli;o__Bacillales;f__Bacillaceae", type = "mean_se")
 
 #now move on to venn diagrams to find unique OTUs
 #create venn diagram for shared OTUs among terrestrial/aquatic gap/woods.
 #first list OTU names found in each group
 names(EAB_Paired_TA_OTU)
-EAB_16S_OTU_map_ag_venn<-aggregate(EAB_Paired_TA_OTU[177:ncol(EAB_Paired_TA_OTU)], 
+EAB_16S_OTU_map_ag_venn<-aggregate(EAB_Paired_TA_OTU[181:ncol(EAB_Paired_TA_OTU)], 
                                    by=list(Gap=EAB_Paired_TA_OTU$Gap,Source=EAB_Paired_TA_OTU$Source),
                                    FUN=sum)
 str(EAB_16S_OTU_map_ag_venn)
@@ -2486,68 +1985,32 @@ quartz()
 GapVen<-venn_diagram4(YAquaticLeafLitter, YLiveLeaves, YTerrestrialLitter, NoGap,
                       "AL Gap  ", "TLL Gap", "TL Gap", "For",
                       colors=gapven_col_vec)
-#only one otu is common between all gap sample types and not found in gap
-GapVen$`AL Gap  _TLL Gap_TL Gap`
-#"d9bf12bfe7c9ef750e953c02b9244ea1"
+#No OTU's common between all gap sample types and not found in gap
 #find relative abundances
-stat.desc(EAB_Paired_TA_OTU$d9bf12bfe7c9ef750e953c02b9244ea1)
-#mean 0.39
 source_url("http://raw.github.com/nielshanson/mp_tutorial/master/downstream_analysis_r/code/venn_diagram3.r")
+quartz()
 GapVen3<-venn_diagram3(YAquaticLeafLitter,YLiveLeaves,YTerrestrialLitter, "Aquatic Litter",
                        "Terrestrial Litter","Live Leaves",colors=source_col_vec)
 ForVen3<-venn_diagram3(NAquaticLeafLitter,NLiveLeaves,NTerrestrialLitter, "Aquatic Litter",
                        "Terrestrial Litter","Live Leaves",colors=source_col_vec)
-GapVenOTU<- summarySE(EAB_Paired_TA_OTU, measurevar="d9bf12bfe7c9ef750e953c02b9244ea1", groupvars=c("Source","Days_since_start"))
-ggplot(GapVenOTU, aes(x=Days_since_start, y=d9bf12bfe7c9ef750e953c02b9244ea1, color=Source)) +
-  geom_errorbar(aes(ymin=d9bf12bfe7c9ef750e953c02b9244ea1-se, ymax=d9bf12bfe7c9ef750e953c02b9244ea1+se), width=.4) +
-  geom_point(size=1.5) +
-  geom_smooth(method=lm, se=F)+
-  xlab("Time")+
-  ylab("Gap OTU Abundance")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.title=element_text(size=18),legend.text = element_text(size=16),
-        strip.text.x = element_text(size = 18))
-#ONly found once in litter for each sample
-EAB_Paired_Taxonomy<- read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_taxonomy.csv", header=T)
-subset(EAB_Paired_Taxonomy, FeatureID=="d9bf12bfe7c9ef750e953c02b9244ea1")
-#k__Bacteria; p__Proteobacteria; c__Alphaproteobacteria; o__Rhizobiales; f__Methylobacteriaceae; g__; s__
-
 quartz()
 WoodsVen<-venn_diagram4(NAquaticLeafLitter, NLiveLeaves, NTerrestrialLitter, YesGap,
                         "AL For", "TLL For", "TL For", "Gap",
                         colors=woodsven_col_vec)
-#only one otu is common between all gap sample types and not found in gap
-WoodsVen$`AL For_TLL For_TL For`
-#"a1fe4f3c8d68400364e4b68adfc2a786"
-WoodsVenOTU<- summarySE(EAB_Paired_TA_OTU, measurevar="a1fe4f3c8d68400364e4b68adfc2a786", groupvars=c("Source","Days_since_start"))
-ggplot(WoodsVenOTU, aes(x=Days_since_start, y=a1fe4f3c8d68400364e4b68adfc2a786, color=Source)) +
-  geom_errorbar(aes(ymin=a1fe4f3c8d68400364e4b68adfc2a786-se, ymax=a1fe4f3c8d68400364e4b68adfc2a786+se), width=.4) +
-  geom_point(size=1.5) +
-  geom_smooth(method=lm, se=F)+
-  xlab("Time")+
-  ylab("Woods OTU Abundance")+
-  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
-        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
-        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
-        legend.title=element_text(size=18),legend.text = element_text(size=16),
-        strip.text.x = element_text(size = 18))
-#similarly, only in low abundance
-subset(EAB_Paired_Taxonomy, FeatureID=="a1fe4f3c8d68400364e4b68adfc2a786")
-#k__Bacteria; p__Proteobacteria; c__Alphaproteobacteria; o__Sphingomonadales; f__Sphingomonadaceae; g__Novosphingobium
+#No OTUs common between all gap sample types and not found in gap
+quartz()
 Ven3<-venn_diagram3(AquaticLeafLitter,LiveLeaves,TerrestrialLitter, "Aquatic Litter",
                        "Terrestrial Litter","Live Leaves",colors=source_col_vec)
-venn.diagram(x = list(YLiveLeaves,NLiveLeaves),category.names = c("Forest" , "Gap"),
+venn.diagram(x = list(YLiveLeaves,NLiveLeaves),category.names = c("Gap" , "Forest"),
   filename = 'LiveLivesGapForest.png',output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,
   scaled=FALSE)
 venn.diagram(x = list(YTerrestrialLitter,NTerrestrialLitter),
-             category.names = c("Forest" , "Gap"),filename = 'TerrestrialLitterGapForest.png',
+             category.names = c("Gap" , "Forest"),filename = 'TerrestrialLitterGapForest.png',
              output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,scaled=FALSE)
 venn.diagram(x = list(YAquaticLeafLitter,NAquaticLeafLitter),
-             category.names = c("Forest" , "Gap"),filename = 'AquaticLitterGapForest.png',
+             category.names = c("Gap" , "Forest"),filename = 'AquaticLitterGapForest.png',
              output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,scaled=FALSE)
-EAB_16S_OTU_map_ag_venn_ALL<-aggregate(EAB_Paired_TA_OTU[177:ncol(EAB_Paired_TA_OTU)], 
+EAB_16S_OTU_map_ag_venn_ALL<-aggregate(EAB_Paired_TA_OTU[178:ncol(EAB_Paired_TA_OTU)], 
                                    by=list(Gap=EAB_Paired_TA_OTU$Gap_location,
                                            Source=EAB_Paired_TA_OTU$Source),FUN=sum)
 str(EAB_16S_OTU_map_ag_venn_ALL)
@@ -2564,13 +2027,150 @@ venn.diagram(x = list(USAquaticLeafLitter,GAquaticLeafLitter,DSAquaticLeafLitter
              category.names=c("Upstream","Gap","Downstream"),
              filename = 'AquaticLitterGL.png',
              output=TRUE,fill=Gap_location_col_vec,cat.cex =1.5,cex=1.5,scaled=FALSE)
+EAB_16S_OTU_map_ag_venn_w<-aggregate(EAB_Paired_TA_OTU[181:ncol(EAB_Paired_TA_OTU)], 
+                                   by=list(Watershed=EAB_Paired_TA_OTU$Watershed,Source=EAB_Paired_TA_OTU$Source),
+                                   FUN=sum)
+str(EAB_16S_OTU_map_ag_venn_w)
+EAB_16S_OTU_map_ag_venn_w$WSource<-as.factor(paste(EAB_16S_OTU_map_ag_venn_w$Watershed, EAB_16S_OTU_map_ag_venn_w$Source))
+levels(EAB_16S_OTU_map_ag_venn_w$WSource)
+row.names(EAB_16S_OTU_map_ag_venn_w)<-EAB_16S_OTU_map_ag_venn_w$WSource
+EAB_16S_OTU_map_ag_venn_w$WSource<-NULL
+EAB_16S_OTU_map_ag_venn_w$Watershed<-NULL
+EAB_16S_OTU_map_ag_venn_w$Source<-NULL
+row.names(EAB_16S_OTU_map_ag_venn_w)
+CAquaticLeafLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Clinton ALL",] > 0]
+GAquaticLeafLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Grand ALL",] > 0]
+KAquaticLeafLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Kalamazoo ALL",] > 0]
+CLiveLeaves<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Clinton LL",] > 0]
+GLiveLeaves<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Grand LL",] > 0]
+KLiveLeaves<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Kalamazoo LL",] > 0]
+CTerrestrialLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Clinton TL",] > 0]
+GTerrestrialLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Grand TL",] > 0]
+KTerrestrialLitter<- colnames(EAB_16S_OTU_map_ag_venn_w)[EAB_16S_OTU_map_ag_venn_w["Kalamazoo TL",] > 0]
+Clinton<-unique(c(CAquaticLeafLitter,CLiveLeaves,CTerrestrialLitter))
+Grand<-unique(c(GAquaticLeafLitter,GLiveLeaves,GTerrestrialLitter))
+Kalamazoo<-unique(c(KAquaticLeafLitter,KLiveLeaves,KTerrestrialLitter))
+CG<-unique(c(Clinton,Grand))
+CK<-unique(c(Clinton,Kalamazoo))
+GK<-unique(c(Grand,Kalamazoo))
+quartz()
+ClintonVen<-venn_diagram4(CAquaticLeafLitter, CLiveLeaves, CTerrestrialLitter, GK,
+                      "AL Cl  ", "TLL Cl", "TL Cl", "Gr+Ka")
+#No OTU's common between all Clinton sample types and not found in Grand or Kalamazoo
+quartz()
+ClintonVen3<-venn_diagram3(CAquaticLeafLitter,CLiveLeaves,CTerrestrialLitter, "Aquatic Litter",
+                       "Terrestrial Litter","Live Leaves",colors=source_col_vec)
+quartz()
+GrandVen<-venn_diagram4(GAquaticLeafLitter, GLiveLeaves, GTerrestrialLitter, CK,
+                          "AL Gr  ", "TLL Gr", "TL Gr", "Cl+Ka")
+#1 OTU common between all Grand sample types and not found in Clinton or Kalamazoo
+#find relative abundance
+GrandVen$`AL Gr  _TLL Gr_TL Gr`
+#"0e1737f92c9ab36c66f868ee6f762e5c"
+EAB_Paired_TA_OTU %>%
+  group_by(Watershed,Source) %>%
+  get_summary_stats("0e1737f92c9ab36c66f868ee6f762e5c", type = "mean_se")
+#<1% relative abundance
+#find taxonomy
+#upload OTU taxonomy
+EAB_paired_OTU_tax<-read.csv("~/Documents/MSU/Research/Surveying/Paired_Sites/EAB_Paired_taxonomy.csv", header=T)
+EAB_paired_OTU_tax[EAB_paired_OTU_tax$FeatureID %in% GrandVen$`AL Gr  _TLL Gr_TL Gr`,]
+#k__Bacteria; p__Actinobacteria; c__Actinobacteria; o__Actinomycetales; f__Kineosporiaceae
+quartz()
+GrandVen3<-venn_diagram3(GAquaticLeafLitter,GLiveLeaves,GTerrestrialLitter, "Aquatic Litter",
+                           "Terrestrial Litter","Live Leaves",colors=source_col_vec)
+quartz()
+KalamazooVen<-venn_diagram4(KAquaticLeafLitter, KLiveLeaves, KTerrestrialLitter, CG,
+                        "AL Ka  ", "TLL Ka", "TL Ka", "Cl+Gr")
+#1 OTU common between all Kalamazoo sample types and not found in Clinton or Grand
+#find relative abundance
+KalamazooVen$`AL Ka  _TLL Ka_TL Ka`
+#"720ffeffab6263dc2410b57601b70bcd"
+EAB_Paired_TA_OTU %>%
+  group_by(Watershed,Source) %>%
+  get_summary_stats("720ffeffab6263dc2410b57601b70bcd", type = "mean_se")
+#<1% relative abundance
+EAB_paired_OTU_tax[EAB_paired_OTU_tax$FeatureID %in% KalamazooVen$`AL Ka  _TLL Ka_TL Ka`,]
+#k__Bacteria; p__Proteobacteria; c__Alphaproteobacteria; o__Rhizobiales; f__Beijerinckiaceae; g__; s__
+quartz()
+KalamazooVen3<-venn_diagram3(KAquaticLeafLitter,KLiveLeaves,KTerrestrialLitter, "Aquatic Litter",
+                         "Terrestrial Litter","Live Leaves",colors=source_col_vec)
+quartz()
+WatVen3<-venn_diagram3(Clinton,Grand,Kalamazoo, "Clinton",
+                       "Grand","Kalamazoo",colors=Watershed_col_vec)
+quartz()
+WatLLVen3<-venn_diagram3(CLiveLeaves,GLiveLeaves,KLiveLeaves, "Clinton",
+                       "Grand","Kalamazoo",colors=Watershed_col_vec)
+quartz()
+WatTLVen3<-venn_diagram3(CTerrestrialLitter,GTerrestrialLitter,KTerrestrialLitter, "Clinton",
+                         "Grand","Kalamazoo",colors=Watershed_col_vec)
+quartz()
+WatALLVen3<-venn_diagram3(CAquaticLeafLitter,GAquaticLeafLitter,KAquaticLeafLitter, "Clinton",
+                         "Grand","Kalamazoo",colors=Watershed_col_vec)
+EAB_16S_OTU_map_ag_venn_wg<-aggregate(EAB_Paired_TA_OTU[178:ncol(EAB_Paired_TA_OTU)], 
+                                     by=list(Watershed=EAB_Paired_TA_OTU$Watershed,Gap=EAB_Paired_TA_OTU$Gap),
+                                     FUN=sum)
+str(EAB_16S_OTU_map_ag_venn_wg)
+EAB_16S_OTU_map_ag_venn_wg$WG<-as.factor(paste(EAB_16S_OTU_map_ag_venn_wg$Watershed, EAB_16S_OTU_map_ag_venn_wg$Gap))
+levels(EAB_16S_OTU_map_ag_venn_wg$WG)
+row.names(EAB_16S_OTU_map_ag_venn_wg)<-EAB_16S_OTU_map_ag_venn_wg$WG
+EAB_16S_OTU_map_ag_venn_wg$WG<-NULL
+EAB_16S_OTU_map_ag_venn_wg$Watershed<-NULL
+EAB_16S_OTU_map_ag_venn_wg$Gap<-NULL
+row.names(EAB_16S_OTU_map_ag_venn_wg)
+CN<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Clinton N",] > 0]
+GN<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Grand N",] > 0]
+KN<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Kalamazoo N",] > 0]
+CY<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Clinton Y",] > 0]
+GY<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Grand Y",] > 0]
+KY<- colnames(EAB_16S_OTU_map_ag_venn_wg)[EAB_16S_OTU_map_ag_venn_wg["Kalamazoo Y",] > 0]
+quartz()
+WatForVen<-venn_diagram4(CN, GN, KN, YesGap,
+                          "Cl For  ", "Gr For", "Ka For", "Gap")
+#9 OTU's common between all watersheds forests and not found in the gap
+#find relative abundances
+WatForUniqueASVs<-WatForVen$`Cl For  _Gr For_Ka For`
+RAWatForUniqueASVs<-EAB_Paired_TA_OTU %>%
+  group_by(Watershed,Gap) %>%
+  get_summary_stats(c(all_of(WatForUniqueASVs)), type = "mean_se")
+#none over 1%
+#taxonomy
+WatForUTax<-EAB_paired_OTU_tax[EAB_paired_OTU_tax$FeatureID %in% WatForUniqueASVs,]
+WatForUTax$Taxon
+quartz()
+ForWatVen3<-venn_diagram3(CN,GN,KN, "Clinton",
+                           "Grand","Kalamazoo",colors=Watershed_col_vec)
+quartz()
+WatGapVen<-venn_diagram4(CY, GY, KY, NoGap,
+                        "Cl Gap  ", "Gr Gap", "Ka Gap", "For")
+#8 OTUs common between all watershed gaps and not found in forest
+#find relative abundance
+WatGapUniqueASVs<-WatGapVen$`Cl Gap  _Gr Gap_Ka Gap`
+RAWatGapUniqueASVs<-EAB_Paired_TA_OTU %>%
+  group_by(Watershed,Gap) %>%
+  get_summary_stats(c(all_of(WatGapUniqueASVs)), type = "mean_se")
+#none over 1%
+WatGapUTax<-EAB_paired_OTU_tax[EAB_paired_OTU_tax$FeatureID %in% WatGapUniqueASVs,]
+WatGapUTax$Taxon
+quartz()
+GapWatVen3<-venn_diagram3(CY,GY,KY, "Clinton",
+                         "Grand","Kalamazoo",colors=Watershed_col_vec)
+venn.diagram(x = list(CY,CN),category.names = c("Gap" , "Forest"),
+             filename = 'ClintonGapForest.png',output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,
+             scaled=FALSE)
+venn.diagram(x = list(GY,GN),category.names = c("Gap" , "Forest"),
+             filename = 'GrandGapForest.png',output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,
+             scaled=FALSE)
+venn.diagram(x = list(KY,KN),category.names = c("Gap" , "Forest"),
+             filename = 'KalamazooGapForest.png',output=TRUE,fill=GF_col_vec,cat.cex =1.5,cex=1.5,
+             scaled=FALSE)
+
 #################################
 #Summary all sources microbes
-#live leaves and terrestrial leaf litter have significantly higher fpd than aquatic leaf litter
-#terrestrial leaf litter higher chao1 richness compared to aquatic leaf litter
-#source and source:watershed interaction influence community structure
-#11 indicator families for watershed
-#only 2 otus only found in gap or forest, not the other
+#terrestrial leaf litter have significantly higher fpd than aquatic leaf litter and live leaves
+#terrestrial leaf litter higher chao1 richness compared to aquatic leaf litter and live leaves
+#source influence community structure
+#No OTUs only found in gap or forest, not the other
 ##############################
 
 #Now model each habitat separately
@@ -2579,194 +2179,149 @@ venn.diagram(x = list(USAquaticLeafLitter,GAquaticLeafLitter,DSAquaticLeafLitter
 #Faith's PD for live leaves
 EAB_16S_fpd_map_LL<-subset(EAB_16S_fpd_map, Source=="LL")
 range(EAB_16S_fpd_map_LL$faith_pd)
-#5.365991-14.963764
+#5.5-15.3
 #build model
-lmer.FPD.LL= lme(faith_pd~Watershed+Gap, random=~1|Stream,
-              data=EAB_16S_fpd_map_LL,
-              method="REML", na.action=na.omit)
+lm.FPD.LL= lm(faith_pd~YearSinceGF+Gap, data=EAB_16S_fpd_map_LL)
 #check assumptions
-hist(residuals(lmer.FPD.LL),col="darkgray")
-shapiro.test(residuals(lmer.FPD.LL))
-#W = 0.97321, p-value = 0.9207,normal
-summary(lmer.FPD.LL)
+plot(lm.FPD.LL,1)
+#no pattern
+plot(lm.FPD.LL,3)
+#fairly flat
+plot(lm.FPD.LL,2)
+#looks good, no outliers
+summary(lm.FPD.LL)
 #intercept significant
 
 #Chao1 for live leaves
 EAB_16S_cha_map_LL<-subset(EAB_16S_cha_map, Source=="LL")
 #start modelling
 range(EAB_16S_cha_map_LL$chao1)
-#27.33333-134.53846
+#27-151
 #build model
-lmer.cha.ll= lme(chao1~Watershed+Gap, random=~1|Stream,
-              data=EAB_16S_cha_map_LL,
-              method="REML", na.action=na.omit)
+lm.cha.ll= lm(chao1~YearSinceGF+Gap,data=EAB_16S_cha_map_LL)
 #check assumptions
-hist(residuals(lmer.cha.ll),col="darkgray")
-shapiro.test(residuals(lmer.cha.ll))
-#W = 0.93988, p-value = 0.5806,normal
-summary(lmer.cha.ll)
-#intercept significant
+plot(lm.cha.ll,1)
+#flat
+plot(lm.cha.ll,3)
+#flat
+plot(lm.cha.ll,2)
+#skewed, try log transforming
+lm.cha.lllog= lm(log10(chao1)~YearSinceGF+Gap,data=EAB_16S_cha_map_LL)
+#check assumptions
+plot(lm.cha.lllog,1)
+#flat
+plot(lm.cha.lllog,3)
+#slight down
+plot(lm.cha.lllog,2)
+#better, use log tranformed
+summary(lm.cha.lllog)
+#nothing significant
 
 #Now look for community level differences using PERMANOVA and adonis in LL
 
 #subset unifrac map for live leaves
 EAB_16S_uni_map_LL<-subset(EAB_16S_uni_map,Source=="LL")
 names(EAB_16S_uni_map_LL)
-EAB_16S_uni_LL<-as.matrix(EAB_16S_uni_map_LL[,c(227:235)])
+EAB_16S_uni_LL<-as.matrix(EAB_16S_uni_map_LL[,c(233:241)])
 #UNI-Create overall environmental data matrix for community analysis with uni distances
-EAB_16S_uni_env_LL<-EAB_16S_uni_map_LL[,1:175]
+EAB_16S_uni_env_LL<-EAB_16S_uni_map_LL[,1:180]
 EAB_16S_uni_env_LL$Gap<-revalue(EAB_16S_uni_env_LL$Gap, c("N"="Forest", "Y"="Gap"))
 EAB_16S_uni_env_LL_GF<-EAB_16S_uni_env_LL$Gap
 EAB_16S_uni_env_LL_W<-as.factor(EAB_16S_uni_env_LL$Watershed)
 
 #UNI-Overall permanova with unifrac distances
-adonis(as.dist(EAB_16S_uni_LL) ~ (Watershed+Gap)^2+Stream, data=EAB_16S_uni_env_LL,
+adonis2(as.dist(EAB_16S_uni_LL) ~ (YearSinceGF+Gap)^2, data=EAB_16S_uni_env_LL,
        permutations=999)
-#watershed significant
+#nothing significant
 
 #Visualize via nmds
 EAB_Paired_Mic_NMDS_LL<-metaMDS(as.dist(EAB_16S_uni_LL))
-
+#stress=0.09
 #Stressplot macroinvertebrate Nmds
 stressplot(EAB_Paired_Mic_NMDS_LL)
 
 #NMDSplot for watershed
-ordiplot(EAB_Paired_Mic_NMDS_LL, type="n", xlim=c(-0.4,0.5), ylim=c(-0.2,0.15))
+ordiplot(EAB_Paired_Mic_NMDS_LL, type="n")
 with(EAB_Paired_Mic_NMDS_LL, points(EAB_Paired_Mic_NMDS_LL, display="sites", col=Watershed_col_vec[EAB_16S_uni_env_LL_W], pch=19))
 with(EAB_Paired_Mic_NMDS_LL, legend("topleft", legend=levels(EAB_16S_uni_env_W), bty="n", col=Watershed_col_vec, pch=19, pt.bg=Watershed_col_vec))
 with(EAB_Paired_Mic_NMDS_LL, ordiellipse(EAB_Paired_Mic_NMDS_LL, EAB_16S_uni_env_LL_W, kind="se", conf=0.95, lwd=2, col="#fdc086", show.groups = "Grand"))
 with(EAB_Paired_Mic_NMDS_LL, ordiellipse(EAB_Paired_Mic_NMDS_LL, EAB_16S_uni_env_LL_W, kind="se", conf=0.95, lwd=2, col="#7fbf7b", show.groups = "Kalamazoo"))
 
-#indicator species analysis for watershed
-EAB_16S_f_map_LL<-subset(EAB_16S_f_map,Source=="LL")
-names(EAB_16S_f_map_LL)
-EAB_16S_f_LL<-EAB_16S_f_map_LL[177:ncol(EAB_16S_f_map_LL)]
-EAB_16S_f_map_LL_W<-EAB_16S_f_map_LL$Watershed
-EAB_Mic_Com_LL_W_indic<-signassoc(EAB_16S_f_LL, cluster=EAB_16S_f_map_LL_W,  mode=0, alternative = "two.sided",control = how(nperm=999))
-EAB_Mic_Com_LL_W_indic_sig<-subset(EAB_Mic_Com_LL_W_indic, psidak<=0.05)
-#2 indicator families for watershed
-rownames(EAB_Mic_Com_LL_W_indic_sig)
-#k__Bacteria;p__Armatimonadetes;c__[Fimbriimonadia];o__[Fimbriimonadales];f__[Fimbriimonadaceae] - Kalamazoo
-#k__Bacteria;p__Firmicutes;c__Bacilli;o__Bacillales;f__Bacillaceae - Kalamazoo
-#summary stats
-EAB_16S_f_map_LL %>%
-  group_by(Watershed) %>%
-  get_summary_stats('k__Bacteria;p__Armatimonadetes;c__[Fimbriimonadia];o__[Fimbriimonadales];f__[Fimbriimonadaceae]', type = "mean_se")
-#Clinton 0(0),Grand 0.3(0.3),Kalamazoo 4.25(0,25)
-EAB_16S_f_map_LL %>%
-  group_by(Watershed) %>%
-  get_summary_stats('k__Bacteria;p__Firmicutes;c__Bacilli;o__Bacillales;f__Bacillaceae', type = "mean_se")
-#Clinton 0.5(0.5),Grand 1.3(0.3),Kalamazoo 56(21)
+#NMDSplot for gap
+ordiplot(EAB_Paired_Mic_NMDS_LL, type="n")
+with(EAB_Paired_Mic_NMDS_LL, points(EAB_Paired_Mic_NMDS_LL, display="sites", col=GF_col_vec[EAB_16S_uni_env_LL_GF], pch=19))
+with(EAB_Paired_Mic_NMDS_LL, legend("topleft", legend=levels(EAB_16S_uni_env_GF), bty="n", col=GF_col_vec, pch=19, pt.bg=GF_col_vec))
+with(EAB_Paired_Mic_NMDS_LL, ordiellipse(EAB_Paired_Mic_NMDS_LL, EAB_16S_uni_env_LL_GF, kind="se", conf=0.95, lwd=2, col="#66c2a5", show.groups = "Forest"))
+with(EAB_Paired_Mic_NMDS_LL, ordiellipse(EAB_Paired_Mic_NMDS_LL, EAB_16S_uni_env_LL_GF, kind="se", conf=0.95, lwd=2, col="#fdae61", show.groups = "Gap"))
 
 #################################
 #Summary live leave microbes
 #FPd and chao not altered
-#watershed significant influence community structure
-#2 indicator families greatest in kalamazoo watershed
+#nothing influences community structure
 ##############################
 
 #Terrestrial litter
+EAB_16S_f_map_TL<-subset(EAB_16S_f_map,Source=="TL")
+names(EAB_16S_f_map_TL)
+EAB_16S_f_TL<-EAB_16S_f_map_TL[182:ncol(EAB_16S_f_map_TL)]
+sort(colSums(EAB_16S_f_TL))
+EAB_16S_f_TL %>%
+  get_summary_stats('k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria;o__Sphingomonadales;f__Sphingomonadaceae', type = "mean_se")
+
 #Faith's PD for terrestrial litter
 EAB_16S_fpd_map_TL<-subset(EAB_16S_fpd_map, Source=="TL")
 range(EAB_16S_fpd_map_TL$faith_pd)
-#9.331483-32.777676
+#9.8-34
 #build model
-lmer.FPD.TL= lme(faith_pd~Watershed+Gap, random=~1|Stream,
-                 data=EAB_16S_fpd_map_TL,
-                 method="REML", na.action=na.omit)
+lm.FPD.TL= lm(faith_pd~YearSinceGF+Gap,data=EAB_16S_fpd_map_TL)
 #check assumptions
-hist(residuals(lmer.FPD.TL),col="darkgray")
-shapiro.test(residuals(lmer.FPD.TL))
-#W = 0.96691, p-value = 0.8537,normal
-summary(lmer.FPD.TL)
-#intercept significant
+plot(lm.FPD.TL,1)
+#flat
+plot(lm.FPD.TL,3)
+#flat
+plot(lm.FPD.TL,2)
+#looks good
+summary(lm.FPD.TL)
+#nothing significant
 
 #Chao1 for terrestrial leaves
 EAB_16S_cha_map_TL<-subset(EAB_16S_cha_map, Source=="TL")
 #start modelling
 range(EAB_16S_cha_map_TL$chao1)
-#81.5000-728.3229
+#82-646
 #build model
-lmer.cha.tl= lme(chao1~Watershed+Gap, random=~1|Stream,
-                 data=EAB_16S_cha_map_TL,
-                 method="REML", na.action=na.omit)
+lm.cha.tl= lm(chao1~YearSinceGF+Gap,data=EAB_16S_cha_map_TL)
 #check assumptions
-hist(residuals(lmer.cha.tl),col="darkgray")
-shapiro.test(residuals(lmer.cha.tl))
-#W = 0.96653, p-value = 0.8496,normal
-summary(lmer.cha.tl)
-#intercept significant
+plot(lm.cha.tl,1)
+#flat
+plot(lm.cha.tl,3)
+#flat
+plot(lm.cha.tl,2)
+#not bad
+summary(lm.cha.tl)
+#nothing significant
 
 #Now look for community level differences using PERMANOVA and adonis in TL
 
 #subset unifrac map for terrestrial litter
 EAB_16S_uni_map_TL<-subset(EAB_16S_uni_map,Source=="TL")
 names(EAB_16S_uni_map_TL)
-EAB_16S_uni_TL<-as.matrix(EAB_16S_uni_map_TL[,c(236:246)])
+EAB_16S_uni_TL<-as.matrix(EAB_16S_uni_map_TL[,c(242:253)])
 #UNI-Create overall environmental data matrix for community analysis with uni distances
-EAB_16S_uni_env_TL<-EAB_16S_uni_map_TL[,1:175]
+EAB_16S_uni_env_TL<-EAB_16S_uni_map_TL[,1:180]
 EAB_16S_uni_env_TL$Gap<-revalue(EAB_16S_uni_env_TL$Gap, c("N"="Forest", "Y"="Gap"))
 EAB_16S_uni_env_TL_GF<-EAB_16S_uni_env_TL$Gap
 EAB_16S_uni_env_TL_W<-as.factor(EAB_16S_uni_env_TL$Watershed)
 
 #UNI-Overall permanova with unifrac distances
-adonis(as.dist(EAB_16S_uni_TL) ~ (Watershed+Gap)^2+Stream, data=EAB_16S_uni_env_TL,
-       permutations=999)
-#watershed*gap interaction significant
-
-#Visualize via nmds
-EAB_Paired_Mic_NMDS_TL<-metaMDS(as.dist(EAB_16S_uni_TL))
-
-#Stressplot Nmds
-stressplot(EAB_Paired_Mic_NMDS_TL)
-
-#NMDSplot for watershed
-ordiplot(EAB_Paired_Mic_NMDS_TL, type="n",ylim=c(-0.3,0.2))
-with(EAB_Paired_Mic_NMDS_TL, points(EAB_Paired_Mic_NMDS_TL, display="sites", col=Watershed_col_vec[EAB_16S_uni_env_TL_W], pch=19))
-with(EAB_Paired_Mic_NMDS_TL, legend("topleft", legend=levels(EAB_16S_uni_env_TL_W), bty="n", col=Watershed_col_vec, pch=19, pt.bg=Watershed_col_vec))
-with(EAB_Paired_Mic_NMDS_TL, ordiellipse(EAB_Paired_Mic_NMDS_TL, EAB_16S_uni_env_TL_W, kind="se", conf=0.95, lwd=2, col="#af8dc3", show.groups = "Clinton"))
-with(EAB_Paired_Mic_NMDS_TL, ordiellipse(EAB_Paired_Mic_NMDS_TL, EAB_16S_uni_env_TL_W, kind="se", conf=0.95, lwd=2, col="#fdc086", show.groups = "Grand"))
-with(EAB_Paired_Mic_NMDS_TL, ordiellipse(EAB_Paired_Mic_NMDS_TL, EAB_16S_uni_env_TL_W, kind="se", conf=0.95, lwd=2, col="#7fbf7b", show.groups = "Kalamazoo"))
-
-#NMDSplot for gap/forest
-ordiplot(EAB_Paired_Mic_NMDS_TL, type="n")
-with(EAB_Paired_Mic_NMDS_TL, points(EAB_Paired_Mic_NMDS_TL, display="sites", col=GF_col_vec[EAB_16S_uni_env_TL_GF], pch=19))
-with(EAB_Paired_Mic_NMDS_TL, legend("topleft", legend=levels(EAB_16S_uni_env_TL_GF), bty="n", col=GF_col_vec, pch=19, pt.bg=GF_col_vec))
-with(EAB_Paired_Mic_NMDS_TL, ordiellipse(EAB_Paired_Mic_NMDS_TL, EAB_16S_uni_env_TL_GF, kind="se", conf=0.95, lwd=2, col="#66c2a5", show.groups = "Forest"))
-with(EAB_Paired_Mic_NMDS_TL, ordiellipse(EAB_Paired_Mic_NMDS_TL, EAB_16S_uni_env_TL_GF, kind="se", conf=0.95, lwd=2, col="#fdae61", show.groups = "Gap"))
-
-#indicator species analysis for watershed
-EAB_16S_f_map_TL<-subset(EAB_16S_f_map,Source=="TL")
-names(EAB_16S_f_map_TL)
-EAB_16S_f_TL<-EAB_16S_f_map_TL[177:ncol(EAB_16S_f_map_TL)]
-EAB_16S_f_map_TL_W<-EAB_16S_f_map_TL$Watershed
-EAB_Mic_Com_TL_W_indic<-signassoc(EAB_16S_f_TL, cluster=EAB_16S_f_map_TL_W,  mode=0, alternative = "two.sided",control = how(nperm=999))
-EAB_Mic_Com_TL_W_indic_sig<-subset(EAB_Mic_Com_TL_W_indic, psidak<=0.05)
-#2 indicator families for watershed both grand
-rownames(EAB_Mic_Com_TL_W_indic_sig)
-#"k__Bacteria;p__Actinobacteria;c__Thermoleophilia;o__Solirubrobacterales;f__Patulibacteraceae" - grand
-#"k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria;o__Caulobacterales;f__Caulobacteraceae" - grand
-#summary stats
-EAB_16S_f_map_TL %>%
-  group_by(Watershed) %>%
-  get_summary_stats("k__Bacteria;p__Actinobacteria;c__Thermoleophilia;o__Solirubrobacterales;f__Patulibacteraceae", type = "mean_se")
-#Clinton 7.8(1.6),Grand 0(0),Kalamazoo 12(6.3)
-EAB_16S_f_map_TL %>%
-  group_by(Watershed) %>%
-  get_summary_stats("k__Bacteria;p__Proteobacteria;c__Alphaproteobacteria;o__Caulobacterales;f__Caulobacteraceae", type = "mean_se")
-#Clinton 42(17),Grand 1(1),Kalamazoo 21(7)
-
-#indicator species analysis for gapforest
-EAB_16S_f_map_TL_GF<-EAB_16S_f_map_TL$Gap
-EAB_Mic_Com_TL_GF_indic<-signassoc(EAB_16S_f_TL, cluster=EAB_16S_f_map_TL_GF,  mode=0, alternative = "two.sided",control = how(nperm=999))
-EAB_Mic_Com_TL_GF_indic_sig<-subset(EAB_Mic_Com_TL_GF_indic, psidak<=0.05)
-#No indicator families
+adonis2(as.dist(EAB_16S_uni_TL) ~ (YearSinceGF+Gap)^2, data=EAB_16S_uni_env_TL,
+       permutations=9999)
+#nothing significant
 
 #################################
 #Summary terrestrial leaf litter microbes
 #FPd and chao not altered
-#watershed*gap interaction significant influence community structure
-#2 indicator families abscent in grand watershed
+#nothing significant influence community structure
 ##############################
 
 #Aquatic Leaf Litter
@@ -2774,103 +2329,92 @@ EAB_Mic_Com_TL_GF_indic_sig<-subset(EAB_Mic_Com_TL_GF_indic, psidak<=0.05)
 #Faith's PD for aquatic leaf litter
 EAB_16S_fpd_map_ALL<-subset(EAB_16S_fpd_map, Source=="ALL")
 range(EAB_16S_fpd_map_ALL$faith_pd)
-#2.244885-19.462688
+#2-22
 #build model
-lmer.FPD.ALL= lme(faith_pd~Watershed+Gap_location+ALL_Richness, random=~1|Stream,
-                 data=EAB_16S_fpd_map_ALL,
-                 method="REML", na.action=na.omit)
+str(EAB_16S_fpd_map_ALL)
+lm.FPD.ALL= lm(faith_pd~YearSinceGF+Gap_location+ALL_Richness,data=EAB_16S_fpd_map_ALL)
 #check assumptions
-hist(residuals(lmer.FPD.ALL),col="darkgray")
-shapiro.test(residuals(lmer.FPD.ALL))
-#W = 0.87069, p-value = 6.908e-05,not normal, try with log transformed
-#build model
-lmer.FPD.log10ALL= lme(log10faith_pd~Watershed+Gap_location+ALL_Richness, random=~1|Stream,
-                  data=EAB_16S_fpd_map_ALL,
-                  method="REML", na.action=na.omit)
+plot(lm.FPD.ALL,1)
+#flat
+plot(lm.FPD.ALL,3)
+#slight positive
+plot(lm.FPD.ALL,2)
+#some skew, try log transformed
+lm.FPD.ALLlog= lm(log10(faith_pd)~YearSinceGF+Gap_location+ALL_Richness,data=EAB_16S_fpd_map_ALL)
 #check assumptions
-hist(residuals(lmer.FPD.log10ALL),col="darkgray")
-shapiro.test(residuals(lmer.FPD.log10ALL))
-#W = 0.9773, p-value = 0.458,normal
-summary(lmer.FPD.log10ALL)
-#intercept significant
+plot(lm.FPD.ALLlog,1)
+#flat
+plot(lm.FPD.ALLlog,3)
+#flat
+plot(lm.FPD.ALLlog,2)
+#much better
+summary(lm.FPD.ALLlog)
+#nothing significant
+ggplot(EAB_16S_fpd_map_ALL, aes(x=Gap_location, y=faith_pd)) +
+  geom_boxplot() +
+  ylab("Microbial Community Phylogenetic Diversity")+
+  xlab("Gap Location")+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+EAB_16S_fpd_map_ALL$Watershed = forcats::fct_rev(factor(EAB_16S_fpd_map_ALL$Watershed))
+ggplot(EAB_16S_fpd_map_ALL, aes(x=Gap_location, y=faith_pd, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Microbial Community Phylogenetic Diversity")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
 
 #Chao1 for aquatic leaf litter
 EAB_16S_cha_map_ALL<-subset(EAB_16S_cha_map, Source=="ALL")
 #start modelling
 range(EAB_16S_cha_map_ALL$chao1)
-#37.2500-338.1667
+#32-345
 #build model
-lmer.cha.all= lme(chao1~Watershed+Gap_location+ALL_Richness, random=~1|Stream,
-                 data=EAB_16S_cha_map_ALL,
-                 method="REML", na.action=na.omit)
+lm.cha.all= lm(chao1~YearSinceGF+Gap_location+ALL_Richness,data=EAB_16S_cha_map_ALL)
 #check assumptions
-hist(residuals(lmer.cha.all),col="darkgray")
-shapiro.test(residuals(lmer.cha.all))
-#W = 0.87517, p-value = 9.335e-05, not normal, try log transformed
-#build model
-lmer.log10cha.all= lme(log10chao1~Watershed+Gap_location+ALL_Richness, random=~1|Stream,
-                  data=EAB_16S_cha_map_ALL,
-                  method="REML", na.action=na.omit)
+plot(lm.cha.all,1)
+#flat
+plot(lm.cha.all,3)
+#flat
+plot(lm.cha.all,2)
+#some skew, log transform
+lm.cha.alllog= lm(log10(chao1)~YearSinceGF+Gap_location+ALL_Richness,data=EAB_16S_cha_map_ALL)
 #check assumptions
-hist(residuals(lmer.log10cha.all),col="darkgray")
-shapiro.test(residuals(lmer.log10cha.all))
-#W = 0.9806, p-value = 0.5908, normal
-summary(lmer.log10cha.all)
-#intercept significant
+plot(lm.cha.alllog,1)
+#flat
+plot(lm.cha.alllog,3)
+#flat
+plot(lm.cha.alllog,2)
+#better
+summary(lm.cha.alllog)
+#nothing significant
 
 #Now look for community level differences using PERMANOVA and adonis in all
 
 #subset unifrac map for terrestrial litter
 EAB_16S_uni_map_ALL<-subset(EAB_16S_uni_map,Source=="ALL")
 names(EAB_16S_uni_map_ALL)
-EAB_16S_uni_ALL<-as.matrix(EAB_16S_uni_map_ALL[,c(176:205,207:226)])
+EAB_16S_uni_ALL<-as.matrix(EAB_16S_uni_map_ALL[,c(181:232)])
 #UNI-Create overall environmental data matrix for community analysis with uni distances
-EAB_16S_uni_env_ALL<-EAB_16S_uni_map_ALL[,1:175]
+EAB_16S_uni_env_ALL<-EAB_16S_uni_map_ALL[,1:180]
 EAB_16S_uni_env_ALL$Gap<-revalue(EAB_16S_uni_env_ALL$Gap, c("N"="Forest", "Y"="Gap"))
 EAB_16S_uni_env_ALL_GF<-EAB_16S_uni_env_ALL$Gap
 EAB_16S_uni_env_ALL_W<-as.factor(EAB_16S_uni_env_ALL$Watershed)
 EAB_16S_uni_env_ALL_GL<-factor(EAB_16S_uni_env_ALL$Gap_location)
 
 #UNI-Overall permanova with unifrac distances
-adonis(as.dist(EAB_16S_uni_ALL) ~ (Watershed+Gap_location+ALL_Richness)^2+Stream, data=EAB_16S_uni_env_ALL,
-       permutations=999)
-#all richness and all richness*gaplocation interaction significant
-
-#Visualize via nmds
-EAB_Paired_Mic_NMDS_ALL<-metaMDS(as.dist(EAB_16S_uni_ALL))
-
-#Stressplot macroinvertebrate Nmds
-stressplot(EAB_Paired_Mic_NMDS_ALL)
-
-#NMDSplot for gap location
-ordiplot(EAB_Paired_Mic_NMDS_ALL, type="n")
-with(EAB_Paired_Mic_NMDS_ALL, points(EAB_Paired_Mic_NMDS_ALL, display="sites", col=Gap_location_col_vec[EAB_16S_uni_env_ALL_GL], pch=19))
-with(EAB_Paired_Mic_NMDS_ALL, legend("topleft", legend=levels(EAB_16S_uni_env_ALL_GL), bty="n", col=Gap_location_col_vec, pch=19, pt.bg=Gap_location_col_vec))
-with(EAB_Paired_Mic_NMDS_ALL, ordiellipse(EAB_Paired_Mic_NMDS_ALL, EAB_16S_uni_env_ALL_GL, kind="se", conf=0.95, lwd=2, col="#1b9e77", show.groups = "Upstream"))
-with(EAB_Paired_Mic_NMDS_ALL, ordiellipse(EAB_Paired_Mic_NMDS_ALL, EAB_16S_uni_env_ALL_GL, kind="se", conf=0.95, lwd=2, col="#d95f02", show.groups = "Gap"))
-with(EAB_Paired_Mic_NMDS_ALL, ordiellipse(EAB_Paired_Mic_NMDS_ALL, EAB_16S_uni_env_ALL_GL, kind="se", conf=0.95, lwd=2, col="#7570b3", show.groups = "Downstream"))
-
-#indicator species analysis for gap location
-EAB_16S_f_map_ALL<-subset(EAB_16S_f_map,Source=="ALL")
-names(EAB_16S_f_map_ALL)
-EAB_16S_f_ALL<-EAB_16S_f_map_ALL[177:ncol(EAB_16S_f_map_ALL)]
-EAB_16S_f_map_ALL_GL<-factor(EAB_16S_f_map_ALL$Gap_location)
-EAB_Mic_Com_ALL_GL_indic<-signassoc(EAB_16S_f_ALL, cluster=EAB_16S_f_map_ALL_GL,  mode=0, alternative = "two.sided",control = how(nperm=999))
-EAB_Mic_Com_ALL_GL_indic_sig<-subset(EAB_Mic_Com_ALL_GL_indic, psidak<=0.05)
-#1 indicator family for gap locaiton downstream
-rownames(EAB_Mic_Com_ALL_GL_indic_sig)
-#"k__Bacteria;p__Planctomycetes;c__Planctomycetia;o__Gemmatales;f__Gemmataceae" - downstream
-#summary stats
-EAB_16S_f_map_ALL %>%
-  group_by(Gap_location) %>%
-  get_summary_stats("k__Bacteria;p__Planctomycetes;c__Planctomycetia;o__Gemmatales;f__Gemmataceae", type = "mean_se")
-#US 0, g 0, ds 0.375 (0.155)
+adonis2(as.dist(EAB_16S_uni_ALL) ~ (YearSinceGF+Gap_location+ALL_Richness)^2, data=EAB_16S_uni_env_ALL,
+       permutations=9999)
 
 #################################
 #Summary aquatic leaf litter microbes
 #FPd and chao not altered
-#all richness and all richness*gaplocation influence community structure
-#1 indicator family for gap location Gemmataceae which only found in ds locations
+#all richness influences community structure
 ##############################
 
 ################
@@ -2891,7 +2435,7 @@ Paired_Macroinvertebrates$Taxonomy<-as.factor(paste(Paired_Macroinvertebrates$Cl
 levels(Paired_Macroinvertebrates$Taxonomy)
 
 #Convert to community matrix based on sample ID
-EAB_M_Matrix <- dcast(Paired_Macroinvertebrates, Stream + Date + Gap + Gap_location ~ Taxonomy, value.var = "Count", fun.aggregate =sum)
+EAB_M_Matrix <- dcast(as.data.table(Paired_Macroinvertebrates), Stream + Date + Gap + Gap_location ~ Taxonomy, value.var = "Count", fun.aggregate =sum)
 #Find total invertebrate #
 sum(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)])
 #Find most abundant taxa
@@ -2900,7 +2444,8 @@ sort(colSums(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)]))
 stat.desc(EAB_M_Matrix$`InsectaColeopteraElmidae`)
 #make relative abundances
 str(EAB_M_Matrix)
-EAB_M_MatrixRA<-data.frame(make_relative(as.matrix(EAB_M_Matrix[,5:ncol(EAB_M_Matrix)])))
+EAB_M_MatrixRA<-EAB_M_Matrix
+EAB_M_MatrixRA[,5:ncol(EAB_M_MatrixRA)]<-data.frame(make_relative(as.matrix(EAB_M_MatrixRA[,5:ncol(EAB_M_MatrixRA)])))
 EAB_M_MatrixRA[is.na(EAB_M_MatrixRA)] <- 0
 str(EAB_M_MatrixRA)
 sort(colMeans(EAB_M_MatrixRA))
@@ -2910,9 +2455,9 @@ stat.desc(EAB_M_MatrixRA$InsectaColeopteraElmidae)
 EAB_Paired_Macs_Stand<-merge(EAB_Ter_H2o_aqcwd_ALL, EAB_M_Matrix, by=c("Stream","Gap_location","Date"))
 #split up into environmental and community
 names(EAB_Paired_Macs_Stand)
-EAB_Paired_Macs_Stand_com<-EAB_Paired_Macs_Stand[,167:ncol(EAB_Paired_Macs_Stand)]
+EAB_Paired_Macs_Stand_com<-EAB_Paired_Macs_Stand[,172:ncol(EAB_Paired_Macs_Stand)]
 EABMacroComtotbray0Stand<-as.matrix(bray0(EAB_Paired_Macs_Stand_com))
-EAB_Paired_Macs_Stand_env<-EAB_Paired_Macs_Stand[,1:166]
+EAB_Paired_Macs_Stand_env<-EAB_Paired_Macs_Stand[,1:171]
 EAB_Paired_Macs_Stand_GA<-EAB_Paired_Macs_Stand_env$Gap_Area
 EAB_Paired_Macs_Stand_GA_cat<-as.factor(EAB_Paired_Macs_Stand_GA)
 EAB_Paired_Macs_Stand_YGF<-EAB_Paired_Macs_Stand_env$Year_Gapformation
@@ -2921,9 +2466,9 @@ EAB_Paired_Macs_Stand_GL<-EAB_Paired_Macs_Stand_env$Gap_location
 EAB_Paired_Macs_Stand_W<-EAB_Paired_Macs_Stand_env$Watershed
 
 #analyze community
-adonis(as.dist(EABMacroComtotbray0Stand) ~ Watershed*Gap_location+Stream,
+adonis2(as.dist(EABMacroComtotbray0Stand) ~ YearSinceGF*Gap_location,
        data=EAB_Paired_Macs_Stand_env,permutations=9999)
-#Watershed and stream significant
+#Year of gap formation and stream significant
 
 #Watershed
 EAB_Inverts_Com_W_indic<-signassoc(EAB_Paired_Macs_Stand_com, cluster=EAB_Paired_Macs_Stand_W,  mode=0, alternative = "two.sided",control = how(nperm=999))
@@ -2933,85 +2478,86 @@ EAB_Inverts_Com_W_indic_sig<-subset(EAB_Inverts_Com_W_indic, psidak<=0.05)
 #Grand: Gammaridae
 #Kalamazoo: Psephenidae, Baetidae, Taeniopterygidae, hydropsychidae, rhacophilidae
 
+#Year of gap formation
+EAB_Inverts_Com_YGF_indic<-data.frame(signassoc(EAB_Paired_Macs_Stand_com, cluster=EAB_Paired_Macs_Stand_YGF_cat,  mode=0, alternative = "two.sided",control = how(nperm=9999)))
+EAB_Inverts_Com_YGF_indic_sig<-subset(EAB_Inverts_Com_YGF_indic, psidak<=0.05)
+#9 families indicate year of gap formation:
+#Grand/2011: Gammaridae
+#Kalamazoo/2014: Elmidae, Psephenidae, Chironomidae, Baetidae, Ephemerellidae, Heptageniidae, hydropsychidae, rhacophilidae
+
 #Gap Location
 EAB_Inverts_Com_GL_indic<-signassoc(EAB_Paired_Macs_Stand_com, cluster=EAB_Paired_Macs_Stand_GL,  mode=0, alternative = "two.sided",control = how(nperm=999))
 EAB_Inverts_Com_GL_indic_sig<-subset(EAB_Inverts_Com_GL_indic, psidak<=0.05)
 #0 families indicate gap location
 
-#so work with these 10 families for quantitative responses:
+#so work with these 9 families for quantitative responses:
 #Determine which are in all watersheds
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
   get_summary_stats("InsectaColeopteraElmidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("InsectaColeopteraElmidae", type = "mean_se")
 #in all streams
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
+  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
+EAB_Paired_Macs_Stand %>%
+  group_by(Year_Gapformation) %>%
+  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
+#missing in frayer, sessions and spring
+EAB_Paired_Macs_Stand %>%
+  group_by(Stream) %>%
+  get_summary_stats("InsectaDipteraChironomidae", type = "mean_se")
+EAB_Paired_Macs_Stand %>%
+  group_by(Year_Gapformation) %>%
+  get_summary_stats("InsectaDipteraChironomidae", type = "mean_se")
+#in all streams
+EAB_Paired_Macs_Stand %>%
+  group_by(Stream) %>%
+  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
+EAB_Paired_Macs_Stand %>%
+  group_by(Year_Gapformation) %>%
+  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
+#missing in spring creek
+EAB_Paired_Macs_Stand %>%
+  group_by(Stream) %>%
   get_summary_stats("InsectaEphemeropteraEphemerellidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("InsectaEphemeropteraEphemerellidae", type = "mean_se")
 #missing in stoney creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
   get_summary_stats("InsectaEphemeropteraHeptageniidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("InsectaEphemeropteraHeptageniidae", type = "mean_se")
 #missing in spring creek
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
-  get_summary_stats("InsectaPlecopteraNemouridae", type = "mean_se")
-EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("InsectaPlecopteraNemouridae", type = "mean_se")
-#missing in spring creek and stoney creek
-EAB_Paired_Macs_Stand %>%
-  group_by(Stream) %>%
-  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
-EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
-#in all streams
-EAB_Paired_Macs_Stand %>%
-  group_by(Stream) %>%
-  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
-EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("InsectaColeopteraPsephenidae", type = "mean_se")
-#missing in frayer, sessions and spring
-EAB_Paired_Macs_Stand %>%
-  group_by(Stream) %>%
-  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
-EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("InsectaEphemeropteraBaetidae", type = "mean_se")
-#missing in spring creek
-EAB_Paired_Macs_Stand %>%
-  group_by(Stream) %>%
-  get_summary_stats("InsectaPlecopteraTaeniopterygidae", type = "mean_se")
-EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("InsectaPlecopteraTaeniopterygidae", type = "mean_se")
-#only found in augusta and seven mile creek
-EAB_Paired_Macs_Stand %>%
-  group_by(Stream) %>%
   get_summary_stats("InsectaTrichopteraHydropsychidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("InsectaTrichopteraHydropsychidae", type = "mean_se")
 #found in all streams
 EAB_Paired_Macs_Stand %>%
   group_by(Stream) %>%
   get_summary_stats("InsectaTrichopteraRhyacophilidae", type = "mean_se")
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("InsectaTrichopteraRhyacophilidae", type = "mean_se")
 #missing in all but sessions and seven mile
+EAB_Paired_Macs_Stand %>%
+  group_by(Stream) %>%
+  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
+EAB_Paired_Macs_Stand %>%
+  group_by(Year_Gapformation) %>%
+  get_summary_stats("MalacostracaAmphipodaGammaridae", type = "mean_se")
+#in all streams
+#Elmidae, Chironomidae, Hydropsychidae, and Gammaridae found in all streams
 
-#so work with hydropsychidae, Gammaridae and Elmidae
+#so work with hydropsychidae, Gammaridae, Chironomidae and Elmidae
 
 #NMDS analysis
 EAB_Paired_Mac_NMDS<-metaMDS(as.dist(EABMacroComtotbray0Stand))
@@ -3027,6 +2573,15 @@ with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand
 with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_W, kind="se", conf=0.95, lwd=2, col="#fdc086", show.groups = "Grand"))
 with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_W, kind="se", conf=0.95, lwd=2, col="#7fbf7b", show.groups = "Kalamazoo"))
 
+#NMDS plot for Year of gap formation
+ordiplot(EAB_Paired_Mac_NMDS, type="n")
+with(EAB_Paired_Mac_NMDS, points(EAB_Paired_Mac_NMDS, display="sites", col=YGF_col_vec[EAB_Paired_Macs_Stand_YGF_cat], pch=19))
+with(EAB_Paired_Mac_NMDS, legend("topleft", legend=levels(EAB_Paired_Macs_Stand_YGF_cat), bty="n", col=YGF_col_vec, pch=19, pt.bg=YGF_col_vec))
+with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#67000d", show.groups = "2006"))
+with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#cb181d", show.groups = "2008"))
+with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#fb6a4a", show.groups = "2011"))
+with(EAB_Paired_Mac_NMDS, ordiellipse(EAB_Paired_Mac_NMDS, EAB_Paired_Macs_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#fcbba1", show.groups = "2014"))
+
 #Now test models on responses of richness, diversity, and populations of indicator taxa
 
 #Richness
@@ -3040,19 +2595,22 @@ range(EAB_Paired_Macs_Stand$Mac_Richness)
 
 #Model richness as mixed model like microbes
 #build model
-lmer.mr= lme(Mac_Richness~Watershed+Gap_location, random=~1|Stream,
-                  data=EAB_Paired_Macs_Stand,
-                  method="REML", na.action=na.omit)
+lm.mr= lm(Mac_Richness~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
 #check assumptions
-hist(residuals(lmer.mr),col="darkgray")
-shapiro.test(residuals(lmer.mr))
-#W = 0.97617, p-value = 0.354, normal
-summary(lmer.mr)
-#intercept and downstream significant
+plot(lm.mr,1)
+#flat
+plot(lm.mr,3)
+#flat to slightly positive
+plot(lm.mr,2)
+#looks okay
+summary(lm.mr)
+#year since gap formation and downstream lowest
+
 #visualize
-ggplot(EAB_Paired_Macs_Stand, aes(x=Watershed, y=Mac_Richness, color=Gap_location)) +
-  geom_point(position=position_jitter(h=0.1, w=0.1),size=3)+
+ggplot(EAB_Paired_Macs_Stand, aes(x=Year_Gapformation_factor, y=Mac_Richness, color=Gap_location)) +
+  geom_point(position=position_jitter(h=0.2, w=0.2),size=3)+
   ylab("Macroinvertebrate Family Richness")+
+  xlab("Year of Gap Formation")+
   scale_color_manual(values=Gap_location_col_vec)+
   labs(color = "Gap Location")+
   theme(panel.background = element_rect(fill = "white", colour = "grey50"),
@@ -3066,22 +2624,59 @@ EAB_Paired_Macs_Stand %>%
 #1 Upstream     Mac_Richness    18  7.56 0.908
 #2 Gap          Mac_Richness    18  7    0.932
 #3 Downstream   Mac_Richness    18  5.28 0.956
-
+ggplot(EAB_Paired_Macs_Stand, aes(x=Gap_location, y=Mac_Richness)) +
+  geom_boxplot()+
+  ylab("Macroinvertebrate Family Richness")+
+  xlab("Gap Location")+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+EAB_Paired_Macs_Stand$Watershed= forcats::fct_rev(factor(EAB_Paired_Macs_Stand$Watershed))
+ggplot(EAB_Paired_Macs_Stand, aes(x=Gap_location, y=Mac_Richness, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Macroinvertebrate Family Richness")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+#change to early, mid late for presentations
+ggplot(EAB_Paired_Macs_Stand, aes(x=Gap_location, y=Mac_Richness, fill=Watershed)) +
+  geom_boxplot() +
+  ylab("Macroinvertebrate Family Richness")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=Watershed_col_vec, name="EAB Invasion", labels = c("Late", "Mid", "Early"))+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
+ggplot(EAB_Paired_Macs_Stand, aes(x=Gap_location, y=Mac_Richness, fill=Year_Gapformation_factor)) +
+  geom_boxplot() +
+  ylab("Macroinvertebrate Family Richness")+
+  xlab("Gap Location")+
+  scale_fill_manual(values=YGF_col_vec)+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_text(size=16),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=16),legend.text = element_text(size=14))
 #Model diversity as mixed model like microbes
 #Calculate diversity
 EAB_Paired_Macs_Stand$Mac_Simp<-diversity(EAB_Paired_Macs_Stand_com, index="invsimpson")
 #Change inf to 1
 EAB_Paired_Macs_Stand$Mac_Simp[!is.finite(EAB_Paired_Macs_Stand$Mac_Simp)] <- 1
 #build model
-lmer.md= lme(Mac_Simp~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_Macs_Stand,
-             method="REML", na.action=na.omit)
+lm.md= lm(Mac_Simp~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
 #check assumptions
-hist(residuals(lmer.md),col="darkgray")
-shapiro.test(residuals(lmer.md))
-#W = 0.98111, p-value = 0.5492, normal
-summary(lmer.md)
-#intercept and downstream significant
+plot(lm.md,1)
+#flat
+plot(lm.md,3)
+#slight positive
+plot(lm.md,2)
+#looks good
+summary(lm.md)
+#intercept, years, and downstream significant
 #visualize
 ggplot(EAB_Paired_Macs_Stand, aes(x=Watershed, y=Mac_Simp, color=Gap_location)) +
   geom_point(position=position_jitter(h=0.1, w=0.1),size=3)+
@@ -3100,88 +2695,195 @@ EAB_Paired_Macs_Stand %>%
 #2 Gap          Mac_Simp    18  3.71 0.392
 #3 Downstream   Mac_Simp    18  3.09 0.416
 
-##Model populations as mixed model like microbes
-#Calculate elmidae relative abundance
-EAB_Paired_Macs_Stand$ElmidaeRA<-EAB_Paired_Macs_Stand$'InsectaColeopteraElmidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
-#build model
-lmer.elm= lme(ElmidaeRA~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_Macs_Stand,
-             method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.elm),col="darkgray")
-shapiro.test(residuals(lmer.elm))
-#W = 0.97495, p-value = 0.3384, normal
-summary(lmer.elm)
-#nothing significant
-
-#Calculate gammaridae relative abundance
-EAB_Paired_Macs_Stand$GammaridRA<-EAB_Paired_Macs_Stand$'MalacostracaAmphipodaGammaridae'/rowSums(EAB_Paired_Macs_Stand[167:213])
-#build model
-lmer.gam= lme(GammaridRA~Watershed+Gap_location, random=~1|Stream,
-              data=EAB_Paired_Macs_Stand,
-              method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.gam),col="darkgray")
-shapiro.test(residuals(lmer.gam))
-#W = 0.7636, p-value = 9.215e-08, not normal
-EAB_Paired_Macs_Stand$log10GammaridRA<-log10(EAB_Paired_Macs_Stand$GammaridRA+1)
-lmer.log10gam= lme(log10GammaridRA~Watershed+Gap_location, random=~1|Stream,
-              data=EAB_Paired_Macs_Stand,
-              method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10gam),col="darkgray")
-shapiro.test(residuals(lmer.log10gam))
-#W = 0.81049, p-value = 1.058e-06 not normal try binomial
+#Model total abundance
+#Create total macroinvertebrate abundance column
 names(EAB_Paired_Macs_Stand)
-EAB_Paired_Macs_Stand$Total_Macs<-rowSums(EAB_Paired_Macs_Stand[167:213])
-glmer.gam<-glmer(GammaridRA~Watershed+Gap_location+1|Stream,family=binomial,
-               weights=Total_Macs,
-               data=EAB_Paired_Macs_Stand)
-summary(glmer.gam)
-#fail to converge, so see if Stream is adding to model
-glm.gam<-glm(GammaridRA~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-           data=EAB_Paired_Macs_Stand)
+EAB_Paired_Macs_Stand$Total_Macs<-rowSums(EAB_Paired_Macs_Stand[172:218])
+lm.tma= lm(Total_Macs~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
 #check assumptions
-hist(residuals(glm.gam),col="darkgray")
-shapiro.test(residuals(glm.gam))
-#W = 0.97544, p-value = 0.3541, normal
-summary(glm.gam)
-#kalamazoo signifiant
+plot(lm.tma,1)
+#flat
+plot(lm.tma,3)
+#slight positive
+plot(lm.tma,2)
+#pretty bad skew towards the end, try transforming
+lm.tmalog= lm(log10(Total_Macs+1)~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+#check assumptions
+plot(lm.tmalog,1)
+#flat
+plot(lm.tmalog,3)
+#flat
+plot(lm.tmalog,2)
+#better
+summary(lm.tmalog)
+#intercept and time significant
 EAB_Paired_Macs_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("GammaridRA", type = "mean_se")
+  group_by(Year_Gapformation) %>%
+  get_summary_stats("Total_Macs", type = "mean_se")
+#Because total abundances different for each stream, use relative abundances for taxa specific analyses
 
-#Calculate hydropsychidae relative abundance
-EAB_Paired_Macs_Stand$HydroRA<-EAB_Paired_Macs_Stand$'InsectaTrichopteraHydropsychidae'/rowSums(EAB_Paired_Macs_Stand[167:213])
-#build model
-lmer.hy= lme(HydroRA~Watershed+Gap_location, random=~1|Stream,
-              data=EAB_Paired_Macs_Stand,
-              method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.hy),col="darkgray")
-shapiro.test(residuals(lmer.hy))
-#W = 0.72775, p-value = 1.73e-08, not normal
-EAB_Paired_Macs_Stand$log10HydroRA<-log10(EAB_Paired_Macs_Stand$HydroRA+1)
-lmer.log10hy= lme(log10HydroRA~Watershed+Gap_location, random=~1|Stream,
-                   data=EAB_Paired_Macs_Stand,
-                   method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10hy),col="darkgray")
-shapiro.test(residuals(lmer.log10hy))
-#W = 0.75117, p-value = 5.073e-08, not significant, try binomial
-glmer.hy<-glmer(HydroRA~Watershed+Gap_location+1|Stream,family=binomial,
-                 weights=Total_Macs,
-                 data=EAB_Paired_Macs_Stand)
-summary(glmer.hy)
-#fail to converge, so see if Stream is adding to model
-glm.hy<-glm(HydroRA~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-             data=EAB_Paired_Macs_Stand)
-#check assumptions
-hist(residuals(glm.hy),col="darkgray")
-shapiro.test(residuals(glm.hy))
-#W = 0.96494, p-value = 0.1282, normal
-summary(glm.hy)
-#nothing signifiant
+#so work with these 5 families for quantitative responses:
+#Elmidae, Chironomidae, Hydropsychidae, and Gammaridae found in all streams
+#Use the same relative response modeling as the leaf packs
+#combine relative abundances with environmental data
+#combine eab_Paired_ALL_Stand with macs
+EAB_Paired_Macs_StandRA<-merge(EAB_Ter_H2o_aqcwd_ALL, EAB_M_MatrixRA, by=c("Stream","Gap_location","Date"))
+
+#Elmidae
+#use logistic model for proportional data
+glm.ElmRA<-glm(InsectaColeopteraElmidae~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.ElmRA)
+#not significant, residenual deviance < df
+plot(glm.ElmRA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ElmRA,3)
+#flat
+plot(glm.ElmRA,2)
+#Skew at end, try with log tranformed
+glm.ElmRAlog<-glm(log10(InsectaColeopteraElmidae+1)~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.ElmRAlog)
+#not significant, residenual deviance < df
+plot(glm.ElmRAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ElmRAlog,3)
+#flat
+plot(glm.ElmRAlog,2)
+#worse skew, go with non transformed
+
+#Chironomidae
+glm.ChRA<-glm(InsectaDipteraChironomidae~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.ChRA)
+#not significant, residenual deviance < df
+plot(glm.ChRA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ChRA,3)
+#slight positive
+plot(glm.ChRA,2)
+#Skew at end, try with log tranformed
+glm.ChRAlog<-glm(log10(InsectaDipteraChironomidae+1)~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.ChRAlog)
+#not significant, residenual deviance < df
+plot(glm.ChRAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.ChRAlog,3)
+#flat
+plot(glm.ChRAlog,2)
+#worse skew, go with non transformed
+
+#Hydropsychidae
+glm.HyRA<-glm(InsectaTrichopteraHydropsychidae~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.HyRA)
+#not significant, residenual deviance < df
+plot(glm.HyRA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.HyRA,3)
+#flat
+plot(glm.HyRA,2)
+#Skew at both ends, try with log tranformed
+glm.HyRAlog<-glm(log10(InsectaTrichopteraHydropsychidae+1)~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.HyRAlog)
+#not significant, residenual deviance < df
+plot(glm.HyRAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.HyRAlog,3)
+#flat
+plot(glm.HyRAlog,2)
+#worse skew, go with non transformed
+
+#Gammaridae
+glm.GaRA<-glm(MalacostracaAmphipodaGammaridae~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.GaRA)
+#not significant, residenual deviance < df
+plot(glm.GaRA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.GaRA,3)
+#flat
+plot(glm.GaRA,2)
+#Skew at both ends, try with log tranformed
+glm.GaRAlog<-glm(log10(MalacostracaAmphipodaGammaridae+1)~YearSinceGF+Gap_location,binomial,data=EAB_Paired_Macs_StandRA)
+summary(glm.GaRAlog)
+#not significant, residenual deviance < df
+plot(glm.GaRAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.GaRAlog,3)
+#flat
+plot(glm.GaRAlog,2)
+#worse skew, go with non transformed
+
+#Try again with absolute abundances
+#use linear models
+#Elmidae
+lm.Elm<-lm(InsectaColeopteraElmidae~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Elm,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Elm,3)
+#slight positive
+plot(lm.Elm,2)
+#Skew at end, try with log tranformed
+lm.Elmlog<-lm(log10(InsectaColeopteraElmidae+1)~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+#not significant, residenual deviance < df
+plot(lm.Elmlog,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Elmlog,3)
+#slight positive
+plot(lm.Elmlog,2)
+#much better
+summary(lm.Elmlog)
+#Intercept and year since gap formation significant
+
+#Chironomidae
+lm.Ch<-lm(InsectaDipteraChironomidae~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Ch,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Ch,3)
+#slight positive
+plot(lm.Ch,2)
+#Skew at end, try with log tranformed
+lm.Chlog<-lm(log10(InsectaDipteraChironomidae+1)~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Chlog,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Chlog,3)
+#slight positive
+plot(lm.Chlog,2)
+#good
+summary(lm.Chlog)
+#intercept and year since gf significant
+
+#Hydropsychidae
+lm.Hy<-lm(InsectaTrichopteraHydropsychidae~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Hy,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Hy,3)
+#slight positive
+plot(lm.Hy,2)
+#Skew at end, try with log tranformed
+lm.Hylog<-lm(log10(InsectaTrichopteraHydropsychidae+1)~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Hylog,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Hylog,3)
+#slight positive
+plot(lm.Hylog,2)
+#good
+summary(lm.Hylog)
+#year since gap formation and intercept significant
+
+#Gammaridae
+lm.Ga<-lm(MalacostracaAmphipodaGammaridae~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Ga,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Ga,3)
+#slight positive
+plot(lm.Ga,2)
+#Skew at end, try with log tranformed
+lm.Galog<-lm(log10(MalacostracaAmphipodaGammaridae+1)~YearSinceGF+Gap_location,data=EAB_Paired_Macs_Stand)
+plot(lm.Galog,1)
+#no fitted pattern and red line approximately at 0
+plot(lm.Galog,3)
+#slight positive
+plot(lm.Galog,2)
+#better
+summary(lm.Galog)
+#not significant
 
 ###################################
 #Functional Feeding Groups
@@ -3216,9 +2918,9 @@ stat.desc(EAB_FFG_MatrixRA$CollectorGatherer)
 EAB_Paired_FFG_Stand<-merge(EAB_Ter_H2o_aqcwd_ALL,MacrosFFG, by=c("Stream","Gap_location","Date"))
 #split up into environmental and community
 names(EAB_Paired_FFG_Stand)
-EAB_Paired_FFG_Stand_com<-EAB_Paired_FFG_Stand[,166:ncol(EAB_Paired_FFG_Stand)]
+EAB_Paired_FFG_Stand_com<-EAB_Paired_FFG_Stand[,171:ncol(EAB_Paired_FFG_Stand)]
 EABFFGComtotbray0Stand<-as.matrix(bray0(EAB_Paired_FFG_Stand_com))
-EAB_Paired_FFG_Stand_env<-EAB_Paired_FFG_Stand[,1:165]
+EAB_Paired_FFG_Stand_env<-EAB_Paired_FFG_Stand[,1:170]
 EAB_Paired_FFG_Stand_GA<-EAB_Paired_FFG_Stand_env$Gap_Area
 EAB_Paired_FFG_Stand_GA_cat<-as.factor(EAB_Paired_FFG_Stand_GA)
 EAB_Paired_FFG_Stand_YGF<-EAB_Paired_FFG_Stand_env$Year_Gapformation
@@ -3227,19 +2929,29 @@ EAB_Paired_FFG_Stand_GL<-EAB_Paired_FFG_Stand_env$Gap_location
 EAB_Paired_FFG_Stand_W<-EAB_Paired_FFG_Stand_env$Watershed
 
 #analyze community
-adonis(as.dist(EABFFGComtotbray0Stand) ~ Watershed*Gap_location+Stream,
+adonis2(as.dist(EABFFGComtotbray0Stand) ~ Year_Gapformation*Gap_location,
        data=EAB_Paired_FFG_Stand_env,permutations=9999)
-#Watershed and stream significant
+#Year of gap formation significant
 
-EAB_FFG_Com_W_indic<-signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_W,  mode=0, alternative = "two.sided",control = how(nperm=9999))
-EAB_FFG_Com_W_indic_sig<-subset(EAB_FFG_Com_W_indic, psidak<=0.05)
-#All 5 families indicate watershed
-#Collector Filterer Grazer and Predator Kalamazoo
-#Collector gatherer and shredder Clinton
+EAB_FFG_Com_YGF_indic<-data.frame(signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_YGF,  mode=0, alternative = "two.sided",control = how(nperm=9999)))
+EAB_FFG_Com_YGF_indic_sig<-subset(EAB_FFG_Com_YGF_indic, psidak<=0.05)
+#All 5 families indicate YGF
+#Collector Filterer Grazer collector gatherer and Predator Kalamazoo
+#shredder Grand
 
 #Gap Location
-EAB_FFG_Com_GL_indic<-signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_GL,  mode=0, alternative = "two.sided",control = how(nperm=9999))
+EAB_FFG_Com_GL_indic<-data.frame(signassoc(EAB_Paired_FFG_Stand_com, cluster=EAB_Paired_FFG_Stand_GL,  mode=0, alternative = "two.sided",control = how(nperm=9999)))
 EAB_FFG_Com_GL_indic_sig<-subset(EAB_FFG_Com_GL_indic, psidak<=0.05)
+#no indicator ffgs
+
+#Year of gap formation with relative abundances
+EAB_FFG_Com_YGF_indicRA<-data.frame(signassoc(EAB_FFG_MatrixRA[,4:ncol(EAB_FFG_MatrixRA)], cluster=EAB_Paired_FFG_Stand_YGF,  mode=0, alternative = "two.sided",control = how(nperm=9999)))
+EAB_FFG_Com_YGF_indicRA_sig<-subset(EAB_FFG_Com_YGF_indicRA, psidak<=0.05)
+#Collector gatherers significantly indicate 2014
+
+#Gap Location
+EAB_FFG_Com_GL_indicRA<-data.frame(signassoc(EAB_FFG_MatrixRA[,4:ncol(EAB_FFG_MatrixRA)], cluster=EAB_Paired_FFG_Stand_GL,  mode=0, alternative = "two.sided",control = how(nperm=9999)))
+EAB_FFG_Com_GL_indicRA_sig<-subset(EAB_FFG_Com_GL_indicRA, psidak<=0.05)
 #no indicator ffgs
 
 #NMDS analysis
@@ -3257,200 +2969,65 @@ with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_
 with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_W, kind="se", conf=0.95, lwd=2, col="#fdc086", show.groups = "Grand"))
 with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_W, kind="se", conf=0.95, lwd=2, col="#7fbf7b", show.groups = "Kalamazoo"))
 
-#Model relative abundances of all functional feeding groups
+#NMDS plot for watershed
+ordiplot(EAB_Paired_FFG_NMDS, type="n")
+with(EAB_Paired_FFG_NMDS, points(EAB_Paired_FFG_NMDS, display="sites", col=YGF_col_vec[EAB_Paired_FFG_Stand_YGF_cat], pch=19))
+with(EAB_Paired_FFG_NMDS, legend("topleft", legend=levels(EAB_Paired_FFG_Stand_YGF_cat), bty="n", col=YGF_col_vec, pch=19, pt.bg=YGF_col_vec))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#67000d", show.groups = "2006"))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#cb181d", show.groups = "2008"))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#fb6a4a", show.groups = "2011"))
+with(EAB_Paired_FFG_NMDS, ordiellipse(EAB_Paired_FFG_NMDS, EAB_Paired_FFG_Stand_YGF_cat, kind="se", conf=0.95, lwd=2, col="#fcbba1", show.groups = "2014"))
+
+#Model relative abundances of collector gatherers
 #Combine FFGs with other metadata
 EAB_Paired_FFG_Stand_RA<-merge(EAB_Ter_H2o_aqcwd_ALL,EAB_FFG_MatrixRA, by=c("Stream","Gap_location","Date"))
 #collector gatherers
-lmer.cg= lme(CollectorGatherer~Watershed+Gap_location, random=~1|Stream,
-              data=EAB_Paired_FFG_Stand_RA,
-              method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.cg),col="darkgray")
-shapiro.test(residuals(lmer.cg))
-#W = 0.9754, p-value = 0.3291, normal
-summary(lmer.cg)
-#nothing significant
-EAB_Paired_FFG_Stand %>%
-  group_by(Watershed) %>%
+#use logistic model for proportional data
+glm.CGRA<-glm(CollectorGatherer~YearSinceGF+Gap_location,binomial,data=EAB_Paired_FFG_Stand_RA)
+summary(glm.CGRA)
+#not significant, residenual deviance < df
+plot(glm.CGRA,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.CGRA,3)
+#slight decrease
+plot(glm.CGRA,2)
+#looks okay, but try with log transformed
+glm.CGRAlog<-glm(log10(CollectorGatherer+1)~YearSinceGF+Gap_location,binomial,data=EAB_Paired_FFG_Stand_RA)
+summary(glm.CGRAlog)
+#not significant, residenual deviance < df
+plot(glm.CGRAlog,1)
+#no fitted pattern and red line approximately at 0
+plot(glm.CGRAlog,3)
+#slight decrease
+plot(glm.CGRAlog,2)
+#Isn't really improved so go with original
+EAB_Paired_FFG_Stand_RA %>%
+  group_by(Year_Gapformation) %>%
   get_summary_stats("CollectorGatherer", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Watershed) %>%
-  get_summary_stats("CollectorGatherer", type = "mean_se")
 
-#collector filterers
-lmer.cf= lme(CollectorFilterer~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_FFG_Stand_RA,
-             method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.cf),col="darkgray")
-shapiro.test(residuals(lmer.cf))
-#W = 0.7749, p-value = 1.079e-07, not normal
-EAB_Paired_FFG_Stand_RA$log10CF<-log10(EAB_Paired_FFG_Stand_RA$CollectorFilterer+1)
-lmer.log10cf= lme(log10CF~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_FFG_Stand_RA,
-             method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10cf),col="darkgray")
-shapiro.test(residuals(lmer.log10cf))
-#W = 0.79245, p-value = 2.704e-07, not normal, try binomial
-#Create weights by rowsums
-EAB_Paired_FFG_Stand_RA$Total_Macs<-rowSums(EAB_Paired_FFG_Stand[166:170])
-glmer.cf<-glmer(CollectorFilterer~Watershed+Gap_location+1|Stream,family=binomial,
-                weights=Total_Macs,
-                  data=EAB_Paired_FFG_Stand_RA)
-summary(glmer.cf)
-#fail to converge, so see if Stream is adding to model
-glm.cf<-glm(CollectorFilterer~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-                data=EAB_Paired_FFG_Stand_RA)
-#check assumptions
-hist(residuals(glm.cf),col="darkgray")
-shapiro.test(residuals(glm.cf))
-#W = 0.95793, p-value = 0.05569, normal
-summary(glm.cf)
-#Kalamazoo significant
-EAB_Paired_FFG_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("CollectorFilterer", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Watershed) %>%
-  get_summary_stats("CollectorFilterer", type = "mean_se")
-
-#shredder
-lmer.sh= lme(Shredder~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_FFG_Stand_RA,
-             method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.sh),col="darkgray")
-shapiro.test(residuals(lmer.sh))
-#W = 0.89095, p-value = 0.0001403, not normal
-EAB_Paired_FFG_Stand_RA$log10sh<-log10(EAB_Paired_FFG_Stand_RA$Shredder+1)
-lmer.log10sh= lme(log10sh~Watershed+Gap_location, random=~1|Stream,
-                  data=EAB_Paired_FFG_Stand_RA,
-                  method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10sh),col="darkgray")
-shapiro.test(residuals(lmer.log10sh))
-#W = 0.93607, p-value = 0.006413, not normal, try binomial
-glmer.sh<-glmer(Shredder~Watershed+Gap_location+1|Stream,family=binomial,
-                weights=Total_Macs,
-                data=EAB_Paired_FFG_Stand_RA)
-summary(glmer.sh)
-#fail to converge, so see if Stream is adding to model
-glm.sh<-glm(Shredder~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-            data=EAB_Paired_FFG_Stand_RA)
-#check assumptions
-hist(residuals(glm.sh),col="darkgray")
-shapiro.test(residuals(glm.sh))
-#W = 0.97255, p-value = 0.249, normal
-summary(glm.sh)
-#Intercept and kalamazoo significant
-EAB_Paired_FFG_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Shredder", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Shredder", type = "mean_se")
-
-#grazer
-lmer.g= lme(Grazer~Watershed+Gap_location, random=~1|Stream,
-             data=EAB_Paired_FFG_Stand_RA,
-             method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.g),col="darkgray")
-shapiro.test(residuals(lmer.g))
-#W = 0.71551, p-value = 6.471e-09, not normal
-EAB_Paired_FFG_Stand_RA$log10G<-log10(EAB_Paired_FFG_Stand_RA$Grazer+1)
-lmer.log10g= lme(log10G~Watershed+Gap_location, random=~1|Stream,
-            data=EAB_Paired_FFG_Stand_RA,
-            method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10g),col="darkgray")
-shapiro.test(residuals(lmer.log10g))
-#W = 0.7705, p-value = 8.63e-08, not normal, try binomial
-glmer.g<-glmer(Grazer~Watershed+Gap_location+1|Stream,family=binomial,
-                weights=Total_Macs,
-                data=EAB_Paired_FFG_Stand_RA)
-summary(glmer.g)
-#fail to converge, so see if Stream is adding to model
-glm.g<-glm(Grazer~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-            data=EAB_Paired_FFG_Stand_RA)
-#check assumptions
-hist(residuals(glm.g),col="darkgray")
-shapiro.test(residuals(glm.g))
-#W = 0.96821, p-value = 0.1606, normal
-summary(glm.g)
-#Gap significant
-EAB_Paired_FFG_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Grazer", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Grazer", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Gap_location) %>%
-  get_summary_stats("Grazer", type = "mean_se")
-
-#predator
-lmer.p= lme(Predator~Watershed+Gap_location, random=~1|Stream,
-            data=EAB_Paired_FFG_Stand_RA,
-            method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.p),col="darkgray")
-shapiro.test(residuals(lmer.p))
-#W = 0.69467, p-value = 2.638e-09, not normal
-EAB_Paired_FFG_Stand_RA$log10P<-log10(EAB_Paired_FFG_Stand_RA$Predator+1)
-lmer.log10p= lme(log10P~Watershed+Gap_location, random=~1|Stream,
-                 data=EAB_Paired_FFG_Stand_RA,
-                 method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10p),col="darkgray")
-shapiro.test(residuals(lmer.log10p))
-summary(lmer.log10p)
-#W = 0.75305, p-value = 3.65e-08, not normal, try binomial
-glmer.p<-glmer(Predator~Watershed+Gap_location+1|Stream,family=binomial,
-               weights=Total_Macs,
-               data=EAB_Paired_FFG_Stand_RA)
-summary(glmer.p)
-#fail to converge, so see if Stream is adding to model
-glm.p<-glm(Predator~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-           data=EAB_Paired_FFG_Stand_RA)
-#check assumptions
-hist(residuals(glm.p),col="darkgray")
-shapiro.test(residuals(glm.p))
-#W = 0.94763, p-value = 0.01963, not normal
-glm.log10p<-glm(log10P~Watershed+Gap_location,family=binomial,weights=Total_Macs,
-                data=EAB_Paired_FFG_Stand_RA)
-summary(glm.log10p)
-#check assumptions
-hist(residuals(glm.log10p),col="darkgray")
-shapiro.test(residuals(glm.log10p))
-#W = 0.9564, p-value = 0.04761, not normal
-skewness(residuals(glm.log10p))
-summary(glm.log10p)
-#intercept signifiant
-EAB_Paired_FFG_Stand %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Predator", type = "mean_se")
-EAB_Paired_FFG_Stand_RA %>%
-  group_by(Watershed) %>%
-  get_summary_stats("Predator", type = "mean_se")
-
-#Model total abundance
-lmer.tma= lme(Total_Macs~Watershed+Gap_location, random=~1|Stream,
-            data=EAB_Paired_FFG_Stand_RA,
-            method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.tma),col="darkgray")
-shapiro.test(residuals(lmer.tma))
-#W = 0.75244, p-value = 3.545e-08, not normal
-EAB_Paired_FFG_Stand_RA$log10Total_Macs<-log10(EAB_Paired_FFG_Stand_RA$Total_Macs+1)
-lmer.log10tma= lme(log10Total_Macs~Watershed+Gap_location, random=~1|Stream,
-              data=EAB_Paired_FFG_Stand_RA,
-              method="REML", na.action=na.omit)
-#check assumptions
-hist(residuals(lmer.log10tma),col="darkgray")
-shapiro.test(residuals(lmer.log10tma))
-#W = 0.96965, p-value = 0.1861, normal
-summary(lmer.log10tma)
-#intercept significant
-
+#Create a figure for the manuscript that panels several responses to gap and year of gap formation
+#DO, ALL Richness, macroinvertebrate richness, Collector gatherer RA
+CJFASFigdf<-data.frame(EAB_Paired_Macs_Stand$Gap_location,EAB_Paired_Macs_Stand$X.DO,
+                       EAB_Paired_Macs_Stand$Year_Gapformation,EAB_Paired_Macs_Stand$ALL_Richness,
+              EAB_Paired_Macs_Stand$Mac_Richness, EAB_Paired_Macs_Stand$InsectaDipteraChironomidae)
+CJFASFigdf$EAB_Paired_Macs_Stand.InsectaDipteraChironomidae<-log10(CJFASFigdf$EAB_Paired_Macs_Stand.InsectaDipteraChironomidae+1)
+names(CJFASFigdf)
+CJFASFigdfmelt<- melt(CJFASFigdf, id = c("EAB_Paired_Macs_Stand.Gap_location","EAB_Paired_Macs_Stand.Year_Gapformation"))
+names(CJFASFigdfmelt)
+levels(CJFASFigdfmelt$variable)
+levels(CJFASFigdfmelt$variable) <- list("A. % Dissolved Oxygen"="EAB_Paired_Macs_Stand.X.DO", 
+                                        "B. Aquatic Litter Richness"="EAB_Paired_Macs_Stand.ALL_Richness",
+                                        "C. Macroinvtebrate Richness"="EAB_Paired_Macs_Stand.Mac_Richness",
+                                        "D. log(Chironomidae Abundance)"="EAB_Paired_Macs_Stand.InsectaDipteraChironomidae")
+ggplot(CJFASFigdfmelt, aes(x=EAB_Paired_Macs_Stand.Year_Gapformation, y=value, 
+                           color=EAB_Paired_Macs_Stand.Gap_location)) +
+  geom_point(position=position_jitter(h=0.3, w=0.3),size=1)+
+  xlab("Year of Gap Formation")+
+  scale_x_continuous(breaks=c(2006,2008,2011,2014))+
+  scale_color_manual(values=Gap_location_col_vec)+
+  labs(color = "Gap Location")+
+  theme(panel.background = element_rect(fill = "white", colour = "grey50"),
+        axis.title.x=element_text(size=16),axis.title.y=element_blank(),
+        axis.text.x=element_text(size=14),axis.text.y = element_text(size=14),
+        legend.title=element_text(size=12),legend.text = element_text(size=10))+
+  facet_grid(variable~.,scales = "free_y",labeller = label_wrap_gen(width=20))
